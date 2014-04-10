@@ -5,6 +5,19 @@ for i in $initialPath; do
 done
 
 mkdir $out
+mkdir $out/bin
+
+
+real_date=$(type -Pa date | sed 1d)
+if [ -n "$real_date" ]; then
+    cat >$out/bin/date <<EOF
+#! $shell
+exec $real_date -d0 "\$@"
+EOF
+    chmod +x $out/bin/date
+    initialPath="$out $initialPath"
+fi
+
 
 echo "export SHELL=$shell" > $out/setup
 echo "initialPath=\"$initialPath\"" >> $out/setup
