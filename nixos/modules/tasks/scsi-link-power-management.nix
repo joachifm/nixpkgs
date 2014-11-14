@@ -24,21 +24,28 @@ with lib;
 
   config = mkIf (config.powerManagement.scsiLinkPolicy != "") {
 
-    jobs."scsi-link-pm" =
+    systemd.services."scsi-link-pm" =
       { description = "SCSI Link Power Management Policy";
 
-        startOn = "stopped udevtrigger";
-
-        task = true;
-
-        unitConfig.ConditionPathIsReadWrite = "/sys/class/scsi_host";
+        requires = [ "systemd-udev-trigger.service" ];
+        wantedBy = [ "multi-user.target" ];
 
         script = ''
           shopt -s nullglob
           for x in /sys/class/scsi_host/host*/link_power_management_policy; do
-            echo ${config.powerManagement.scsiLinkPolicy} > $x
+            echo ${config.powerManagement.scsiLinkPolicy} >$x
           done
         '';
+
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = "yes";
+        };
+
+        unitConfig = {
+          ConditionPathIsReadWrite = "/sys/class/scsi_host";
+        };
+
       };
 
   };
