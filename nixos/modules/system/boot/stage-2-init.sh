@@ -161,14 +161,6 @@ echo "running activation script..."
 $systemConfig/activate
 
 
-# Restore the system time from the hardware clock.  We do this after
-# running the activation script to be sure that /etc/localtime points
-# at the current time zone.
-if [ -e /dev/rtc ]; then
-    hwclock --hctosys
-fi
-
-
 # Record the boot configuration.
 ln -sfn "$systemConfig" /run/booted-system
 
