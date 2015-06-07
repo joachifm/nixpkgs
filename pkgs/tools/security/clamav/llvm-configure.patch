@@ -1,0 +1,42 @@
+diff -uNr old/libclamav/c++/configure new/libclamav/c++/configure
+--- old/libclamav/c++/configure	2015-04-23 18:02:34.000000000 +0200
++++ new/libclamav/c++/configure	2015-06-07 15:28:34.224299238 +0200
+@@ -15508,29 +15508,10 @@
+ 
+ if test "x$llvmconfig" != "x"; then
+     LLVMCONFIG_CXXFLAGS=`$llvmconfig --cxxflags`
+-
+-
+-    if test "x$llvm_linking" = "xdynamic"; then
+-        LLVMCONFIG_LDFLAGS=`$llvmconfig --ldflags`
+-
+-        LLVMCONFIG_LIBS=-lLLVM-$llvmver
+-
+-
+-    else
+-        if test $llvmver_test -ge 350; then
+-                      ldflags=`$llvmconfig --ldflags`
+-           syslibs=`$llvmconfig --system-libs`
+-           LLVMCONFIG_LDFLAGS="$ldflags $syslibs"
+-
+-        else
+-           LLVMCONFIG_LDFLAGS=`$llvmconfig --ldflags`
+-
+-        fi
+-        LLVMCONFIG_LIBS=`$llvmconfig --libs jit nativecodegen scalaropts ipo`
+-
+-        LLVMCONFIG_LIBFILES=`$llvmconfig --libfiles jit nativecodegen scalaropts ipo`
+-
+-    fi
++    ldflags=`$llvmconfig --ldflags`
++    syslibs=`$llvmconfig --system-libs`
++    LLVMCONFIG_LDFLAGS="$ldflags $syslibs"
++    LLVMCONFIG_LIBS=`$llvmconfig --libs jit nativecodegen scalaropts ipo`
+ 
+     { $as_echo "$as_me:${as_lineno-$LINENO}: CXXFLAGS from llvm-config: $LLVMCONFIG_CXXFLAGS" >&5
+ $as_echo "$as_me: CXXFLAGS from llvm-config: $LLVMCONFIG_CXXFLAGS" >&6;}
+@@ -18576,4 +18557,3 @@
+   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unrecognized options: $ac_unrecognized_opts" >&5
+ $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
+ fi
+-

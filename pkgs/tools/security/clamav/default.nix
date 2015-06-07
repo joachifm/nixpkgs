@@ -1,4 +1,7 @@
-{ stdenv, fetchurl, zlib, bzip2, libiconv, libxml2, openssl, ncurses, curl }:
+{ stdenv, fetchurl, zlib, bzip2, libiconv, libxml2, openssl, ncurses, curl
+, llvm
+}:
+
 stdenv.mkDerivation rec {
   name = "clamav-${version}";
   version = "0.98.6";
@@ -18,8 +21,16 @@ stdenv.mkDerivation rec {
     "--with-openssl=${openssl}"
     "--with-libncurses-prefix=${ncurses}"
     "--with-libcurl=${curl}"
+    "--with-system-llvm=${llvm}/bin/llvm-config"
+    "--with-llvm-linking=dynamic"
     "--disable-clamav"
   ];
+
+  patches = [ ./llvm-configure.patch ];
+
+  postPatch = ''
+    sed -i 's,\(llvm/Config\)/config.h,\1/llvm-config.h,g' libclamav/c++/*.cpp
+  '';
 
   meta = with stdenv.lib; {
     homepage = http://www.clamav.net;

@@ -1068,7 +1068,7 @@ let
 
   checkbashism = callPackage ../development/tools/misc/checkbashisms { };
 
-  clamav = callPackage ../tools/security/clamav { };
+  clamav = callPackage ../tools/security/clamav { llvm = llvm_35; };
 
   clex = callPackage ../tools/misc/clex { };
 
