@@ -1,4 +1,5 @@
-{ stdenv, fetchurl, zlib, bzip2, libiconv, libxml2, openssl, ncurses, curl }:
+{ stdenv, fetchurl, zlib, bzip2, libiconv, libxml2, openssl, ncurses, curl
+, json_c }:
 stdenv.mkDerivation rec {
   name = "clamav-${version}";
   version = "0.98.6";
@@ -18,6 +19,7 @@ stdenv.mkDerivation rec {
     "--with-openssl=${openssl}"
     "--with-libncurses-prefix=${ncurses}"
     "--with-libcurl=${curl}"
+    "--with-libjson=${json_c}"
     "--disable-clamav"
   ];
 
