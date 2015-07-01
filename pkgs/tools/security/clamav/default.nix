@@ -9,7 +9,7 @@ stdenv.mkDerivation rec {
     sha256 = "0l99a0shgzpl8rvrrgbm1ki2zxlb7g1n82bhq7f2snj4amfj94b5";
   };
 
-  buildInputs = [ zlib bzip2 libxml2 openssl ncurses curl libiconv ];
+  buildInputs = [ zlib bzip2 libxml2 openssl ncurses curl libiconv json_c ];
 
   configureFlags = [
     "--with-zlib=${zlib}"
