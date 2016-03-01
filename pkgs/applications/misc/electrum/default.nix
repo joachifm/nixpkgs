@@ -1,4 +1,8 @@
-{ stdenv, fetchurl, pythonPackages }:
+{ stdenv, fetchurl, pythonPackages
+, headless ? false
+}:
+
+with stdenv.lib;
 
 let
   jsonrpclib = pythonPackages.buildPythonPackage rec {
@@ -17,7 +21,7 @@ let
 in
 
 pythonPackages.buildPythonApplication rec {
-  name = "electrum-${version}";
+  name = "electrum${optionalString headless "-headless"}-${version}";
   version = "2.6.4";
 
   src = fetchurl {
@@ -34,15 +38,17 @@ pythonPackages.buildPythonApplication rec {
     pyasn1
     pyasn1-modules
     pycrypto
-    pyqt4
     qrcode
     requests
     slowaes
     tlslite
+  ] ++ optionals (!headless) [
+    pyqt4
 
     # plugins
     trezor
     keepkey
+
     # TODO plugins
     # matplotlib
     # btchip
@@ -52,6 +58,7 @@ pythonPackages.buildPythonApplication rec {
   preInstall = ''
     mkdir -p $out/share
     sed -i 's@usr_share = .*@usr_share = os.getenv("out")+"/share"@' setup.py
+  '' + optionalString (!headless) ''
     pyrcc4 icons.qrc -o gui/qt/icons_rc.py
   '';
 
