@@ -20,6 +20,7 @@ in
       procGID = mkOption {
         type = types.nullOr types.int;
         default = null;
+        example = 1337;
         description = ''
           Members of this group can read the process information of other users.
           By default, all users except root are subject to process information
