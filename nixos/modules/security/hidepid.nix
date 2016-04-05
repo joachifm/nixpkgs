@@ -6,7 +6,7 @@ with lib;
     security.hideProcessInformation = {
       enable = mkEnableOption "" // { description = ''
         Restrict access to process information to the owning user.  Enabling
-        this option means, among other things, that command-line arguments
+        this option implies, among other things, that command-line arguments
         remain private.  This option is recommended for most systems, unless
         there's a legitimate reason for allowing unprivileged users to inspect
         the process information of other users.
