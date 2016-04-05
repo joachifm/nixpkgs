@@ -21,8 +21,14 @@ with lib;
   };
 
   config = mkIf (config.security.hideProcessInformation) {
-    system.activationScripts.hidepid = ''
-      mount -o remount,hidepid=2 /proc
-    '';
+    systemd.services.hidepid = {
+      wantedBy = [ "sysinit.target" ];
+      after = [ "local-fs.target" ];
+      unitConfig.DefaultDependencies = false;
+      serviceConfig = {
+        ExecStart = ''${pkgs.utillinux}/bin/mount -o remount,hidepid=2 /proc'';
+        ExecStop = ''${pkgs.utillinux}/bin/mount -o remount,hidepid=0 /proc'';
+      };
+    };
   };
 }
