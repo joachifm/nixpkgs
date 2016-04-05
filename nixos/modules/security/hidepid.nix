@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ config, pkgs, lib, ... }:
 with lib;
 
 {
@@ -24,11 +24,14 @@ with lib;
     systemd.services.hidepid = {
       wantedBy = [ "sysinit.target" ];
       after = [ "local-fs.target" ];
-      unitConfig.DefaultDependencies = false;
+
       serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
         ExecStart = ''${pkgs.utillinux}/bin/mount -o remount,hidepid=2 /proc'';
         ExecStop = ''${pkgs.utillinux}/bin/mount -o remount,hidepid=0 /proc'';
       };
+      unitConfig.DefaultDependencies = false;
     };
   };
 }
