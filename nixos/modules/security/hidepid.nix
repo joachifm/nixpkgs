@@ -39,9 +39,13 @@ in
         Type = "oneshot";
         RemainAfterExit = true;
         ExecStart = ''${pkgs.utillinux}/bin/mount -o remount,hidepid=2,gid=${gidArg} /proc'';
-        ExecStop = ''${pkgs.utillinux}/bin/mount -o remount,hidepid=0 /proc'';
+        ExecStop = ''${pkgs.utillinux}/bin/mount -o remount,hidepid=0,gid=0 /proc'';
       };
-      unitConfig.DefaultDependencies = false;
+
+      unitConfig = {
+        DefaultDependencies = false;
+        Conflicts = "shutdown.target";
+      };
     };
   };
 }
