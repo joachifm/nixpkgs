@@ -24,7 +24,10 @@ in
         description = ''
           Members of this group can read the process information of other users.
           By default, all users except root are subject to process information
-          hiding.
+          hiding. Services that require access to process information should be
+          executing with this GID added to their supplementary groups (or as the
+          primary group). This is achived by setting
+          <literal>systemd.services.<name?>.serviceConfig.SupplementaryGroups</literal>.
         '';
       };
     };
