@@ -30,7 +30,7 @@ in
     };
   };
 
-  config = mkIf (config.security.hideProcessInformation) {
+  config = mkIf cfg.enable {
     systemd.services.hidepid = {
       wantedBy = [ "sysinit.target" ];
       after = [ "local-fs.target" ];
