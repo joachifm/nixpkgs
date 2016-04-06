@@ -122,7 +122,7 @@ import ./make-test.nix ({ pkgs, ...} : {
       # Test hidepid
       subtest "hidepid", sub {
           $machine->succeed("grep -Fq hidepid=2 /etc/mtab");
-          $machine->succeed("systemctl is-active hidepid && [ `su - sybil -c 'pgrep -c -u root'` = 0 ]");
+          $machine->succeed("[ `su - sybil -c 'pgrep -c -u root'` = 0 ]");
       };
     '';
 })
