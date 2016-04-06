@@ -14,6 +14,11 @@ my $startListFile = "/run/systemd/start-list";
 my $restartListFile = "/run/systemd/restart-list";
 my $reloadListFile = "/run/systemd/reload-list";
 
+my $specialMounts = {
+    "/proc" => 1,
+    "/sys" => 1,
+};
+
 my $action = shift @ARGV;
 
 if (!defined $action || ($action ne "switch" && $action ne "boot" && $action ne "test" && $action ne "dry-activate")) {
@@ -79,7 +84,7 @@ sub getActiveUnits {
 
 sub parseFstab {
     my ($filename) = @_;
-    my ($fss, $swaps);
+    my ($fss, $swaps, $specials);
     foreach my $line (read_file($filename, err_mode => 'quiet')) {
         chomp $line;
         $line =~ s/^\s*#.*//;
@@ -87,11 +92,13 @@ sub parseFstab {
         my @xs = split / /, $line;
         if ($xs[2] eq "swap") {
             $swaps->{$xs[0]} = { options => $xs[3] // "" };
+        } elsif ($specialMounts->{$xs[1]} eq 1) {
+            $specials->{$xs[1]} = { options => $xs[3] // "" };
         } else {
             $fss->{$xs[1]} = { device => $xs[0], fsType => $xs[2], options => $xs[3] // "" };
         }
     }
-    return ($fss, $swaps);
+    return ($fss, $swaps, $specials);
 }
 
 sub parseUnit {
@@ -285,8 +292,8 @@ sub unique {
 # automatically by starting local-fs.target.  FIXME: might be nicer if
 # we generated units for all mounts; then we could unify this with the
 # unit checking code above.
-my ($prevFss, $prevSwaps) = parseFstab "/etc/fstab";
-my ($newFss, $newSwaps) = parseFstab "$out/etc/fstab";
+my ($prevFss, $prevSwaps, $prevSpecials) = parseFstab "/etc/fstab";
+my ($newFss, $newSwaps, $newSpecials) = parseFstab "$out/etc/fstab";
 foreach my $mountPoint (keys %$prevFss) {
     my $prev = $prevFss->{$mountPoint};
     my $new = $newFss->{$mountPoint};
@@ -319,6 +326,18 @@ foreach my $device (keys %$prevSwaps) {
         system("@utillinux@/sbin/swapoff", $device);
     }
     # FIXME: update swap options (i.e. its priority).
+}
+
+# Also handles special mounts (remounted by a systemd service).
+foreach my $mountPoint (keys %$specialMounts) {
+    my $prev = $prevSpecials->{$mountPoint}->{options} // "";
+    my $new = $newSpecials->{$mountPoint}->{options} // "";
+    if ($prev ne $new) {
+        $unitsToStop{'systemd-remount-fs.service'} = 1;
+        $unitsToStart{'systemd-remount-fs.service'} = 1;
+        recordUnit($startListFile, 'systemd-remount-fs.service');
+        last;
+    }
 }
 
 

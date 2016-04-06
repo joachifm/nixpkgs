@@ -26,7 +26,7 @@ in
           hiding. Services that require access to process information should be
           executing with this GID added to their supplementary groups (or as the
           primary group). This can be achieved by setting
-          <literal>systemd.services.<name?>.serviceConfig.SupplementaryGroups</literal>.
+          <literal>systemd.services.(name).serviceConfig.SupplementaryGroups</literal>.
         '';
       };
     };
