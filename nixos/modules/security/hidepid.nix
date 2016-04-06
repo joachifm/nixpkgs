@@ -33,12 +33,13 @@ in
   };
 
   config = {
-    # Note: these options must be set regardless of whether the module is
-    # "enabled" to ensure that the effect of enabling process information hiding
-    # is undone when the module is disabled.
-    fileSystems."/proc".options = [
-      ''hidepid=${if cfg.enable then "2" else "0"}''
-      ''gid=${if (cfg.enable && cfg.procGID != null) then "${toString cfg.procGID}" else "0"}''
-    ];
+    fileSystems."/proc" = {
+      options = [
+        ''hidepid=${if cfg.enable then "2" else "0"}''
+        ''gid=${if (cfg.enable && cfg.procGID != null) then "${toString cfg.procGID}" else "0"}''
+      ];
+      fsType = "proc";
+      device = "proc";
+    };
   };
 }
