@@ -3,7 +3,6 @@ with lib;
 
 let
   cfg = config.security.hideProcessInformation;
-  gidArg = if cfg.procGID != null then toString gidArg else "0";
 in
 
 {
@@ -33,22 +32,13 @@ in
     };
   };
 
-  config = mkIf cfg.enable {
-    systemd.services.hidepid = {
-      wantedBy = [ "sysinit.target" ];
-      after = [ "local-fs.target" ];
-
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        ExecStart = ''${pkgs.utillinux}/bin/mount -o remount,hidepid=2,gid=${gidArg} /proc'';
-        ExecStop = ''${pkgs.utillinux}/bin/mount -o remount,hidepid=0,gid=0 /proc'';
-      };
-
-      unitConfig = {
-        DefaultDependencies = false;
-        Conflicts = "shutdown.target";
-      };
-    };
+  config = {
+    # Note: these options must be set regardless of whether the module is
+    # "enabled" to ensure that the effect of enabling process information hiding
+    # is undone when the module is disabled.
+    fileSystems."/proc".options = [
+      ''hidepid=${if cfg.enable then "2" else "0"}''
+      ''gid=${if (cfg.enable && cfg.procGID != null) then "${toString cfg.procGID}" else "0"}''
+    ];
   };
 }
