@@ -121,7 +121,7 @@ import ./make-test.nix ({ pkgs, ...} : {
 
       # Test hidepid
       subtest "hidepid", sub {
-          $machine->succeed("systemctl is-active hidepid && [ $(su - sybil -c 'pgrep -c -u root') = 0 ]");
+          $machine->succeed("systemctl is-active hidepid && [ `su - sybil -c 'pgrep -c -u root'` = 0 ]");
       };
     '';
 })
