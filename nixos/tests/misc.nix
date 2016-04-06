@@ -25,6 +25,7 @@ import ./make-test.nix ({ pkgs, ...} : {
         };
       users.users.sybil = { isNormalUser = true; group = "wheel"; };
       security.sudo = { enable = true; wheelNeedsPassword = false; };
+      security.hideProcessInformation.enable = true;
     };
 
   testScript =
@@ -116,6 +117,11 @@ import ./make-test.nix ({ pkgs, ...} : {
       # Test sudo
       subtest "sudo", sub {
           $machine->succeed("su - sybil -c 'sudo true'");
+      };
+
+      # Test hidepid
+      subtest "hidepid", sub {
+          $machine->succeed("systemctl is-active hidepid && [ $(su - sybil -c 'pgrep -c -u root') = 0 ]");
       };
     '';
 })
