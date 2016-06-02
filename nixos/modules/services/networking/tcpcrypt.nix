@@ -6,6 +6,8 @@ let
 
   cfg = config.networking.tcpcrypt;
 
+  divertPort = 666;
+
 in
 
 {
@@ -29,11 +31,13 @@ in
 
   config = mkIf cfg.enable {
 
-    users.extraUsers = singleton {
-      name = "tcpcryptd";
-      uid = config.ids.uids.tcpcryptd;
+    users.extraUsers.tcpcryptd = {
       description = "tcpcrypt daemon user";
+      isSystemUser = true;
     };
+
+    # We would like to use systemd's User feature, but the daemon expects to
+    # run as root so as to chroot and drop privileges by itself ...
 
     systemd.services.tcpcrypt = {
       description = "tcpcrypt";
@@ -41,29 +45,34 @@ in
       wantedBy = [ "multi-user.target" ];
       after = [ "network-interfaces.target" ];
 
-      path = [ pkgs.iptables pkgs.tcpcrypt pkgs.procps ];
+      path = with pkgs; [ iptables tcpcrypt procps ];
 
       preStart = ''
-        mkdir -p /var/run/tcpcryptd
-        chown tcpcryptd /var/run/tcpcryptd
+        mkdir -m 755 -p /run/tcpcryptd
+        chown tcpcryptd /run/tcpcryptd
+
         sysctl -n net.ipv4.tcp_ecn >/run/pre-tcpcrypt-ecn-state
         sysctl -w net.ipv4.tcp_ecn=0
 
         iptables -t raw -N nixos-tcpcrypt
-        iptables -t raw -A nixos-tcpcrypt -p tcp -m mark --mark 0x0/0x10 -j NFQUEUE --queue-num 666
+        iptables -t raw -A nixos-tcpcrypt -p tcp -m mark --mark 0x0/0x10 -j NFQUEUE --queue-num ${divertPort}
         iptables -t raw -I PREROUTING -j nixos-tcpcrypt
 
         iptables -t mangle -N nixos-tcpcrypt
-        iptables -t mangle -A nixos-tcpcrypt -p tcp -m mark --mark 0x0/0x10 -j NFQUEUE --queue-num 666
+        iptables -t mangle -A nixos-tcpcrypt -p tcp -m mark --mark 0x0/0x10 -j NFQUEUE --queue-num ${divertPort}
         iptables -t mangle -I POSTROUTING -j nixos-tcpcrypt
       '';
 
-      script = "tcpcryptd -x 0x10";
+      script = ''
+        tcpcryptd -x 0x10 -p ${toString divertPort} -u /run/tcpcryptd.control -U tcpcryptd -J /run/tcpcryptd
+      '';
 
       postStop = ''
         if [ -f /run/pre-tcpcrypt-ecn-state ]; then
           sysctl -w net.ipv4.tcp_ecn=$(cat /run/pre-tcpcrypt-ecn-state)
         fi
+
+        rm -rf /run/tcpcryptd
 
         iptables -t mangle -D POSTROUTING -j nixos-tcpcrypt || true
         iptables -t raw -D PREROUTING -j nixos-tcpcrypt || true
@@ -74,6 +83,9 @@ in
         iptables -t mangle -F nixos-tcpcrypt || true
         iptables -t mangle -X nixos-tcpcrypt || true
       '';
+
+      serviceConfig.CapabilityBoundingSet = "CAP_CHOWN CAP_NET_ADMIN CAP_SETUID CAP_SYS_CHROOT"
+        + optionalString (divertPort < 1024) "CAP_NET_BIND_SERVICE";
     };
   };
 
