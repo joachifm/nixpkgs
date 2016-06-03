@@ -322,6 +322,22 @@ in rec {
       '';
     };
 
+    capabilities = mkOption {
+      type = types.listOf (types.enum lib.capabilities);
+      default = [];
+      example = [ "net_bind_service" ];
+      description = ''
+        Capabilities granted to the service process.  The capabilities and their
+        meaning are listed in <citerefentry>
+        <refentrytitle>capabilities</refentrytitle><manvolnum>7</manvolnum>
+        <citerefentry>.  For convenience, capabilities are named in lower case
+        and without the <literal>CAP_</literal> prefix. If the process is
+        running as an unprivileged user, the listed capabilities are added to
+        its ambient capabilities.  If running as a super-user, the capabilities
+        listed here defines the process capability bounding set.  Only
+        capabilities listed here are granted to the process.
+      '';
+    };
   };
 
 
