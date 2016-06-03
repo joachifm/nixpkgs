@@ -190,6 +190,9 @@ let
         x = pkgs.writeTextFile { name = "unit-script"; executable = true; destination = "/bin/${mkScriptName name}"; inherit text; };
     in "${x}/bin/${mkScriptName name}";
 
+  makeCapabilityList = caps:
+    concatStringsSep " " (map capFromName caps);
+
   unitConfig = { name, config, ... }: {
     config = {
       unitConfig =
@@ -267,6 +270,8 @@ let
               ${config.postStop}
             '';
           })
+        /* TODO: what about the case where User != root, need to expand to AmbientCapabilities */
+        { serviceConfig.CapabilityBoundingSet = makeCapabilityList config.capabilities; }
       ];
   };
 
