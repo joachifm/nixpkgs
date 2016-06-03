@@ -323,7 +323,7 @@ in rec {
     };
 
     capabilities = mkOption {
-      type = types.listOf (types.enum lib.capabilities);
+      type = types.listOf (types.enum (lib.capabilities ++ map (x: "~${x}") lib.capabilities));
       default = [];
       example = [ "net_bind_service" ];
       description = ''
@@ -335,7 +335,10 @@ in rec {
         running as an unprivileged user, the listed capabilities are added to
         its ambient capabilities.  If running as a super-user, the capabilities
         listed here defines the process capability bounding set.  Only
-        capabilities listed here are granted to the process.
+        capabilities listed here are granted to the process.  Capabilities can
+        also be removed by prepending <literal>~</literal> to the name.  Doing
+        so, inverts the meaning of this option: all capabilities not taken away,
+        are granted.
       '';
     };
   };
