@@ -18,10 +18,12 @@ let
   customisation = import ./customisation.nix;
   licenses = import ./licenses.nix;
   sandbox = import ./sandbox.nix;
+  capabilities = import ./capabilities.nix;
 
 in
   { inherit trivial lists strings stringsWithDeps attrsets sources options
-      modules types meta debug maintainers licenses platforms systems sandbox;
+      modules types meta debug maintainers licenses platforms systems sandbox
+      capabilities;
   }
   # !!! don't include everything at top-level; perhaps only the most
   # commonly used functions.
