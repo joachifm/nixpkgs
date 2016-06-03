@@ -270,8 +270,11 @@ let
               ${config.postStop}
             '';
           })
-        /* TODO: what about the case where User != root, need to expand to AmbientCapabilities */
-        { serviceConfig.CapabilityBoundingSet = makeCapabilityList config.capabilities; }
+        (mkIf (config.serviceConfig.User or "" != "" &&
+               config.capabilities != [])
+          { serviceConfig.AmbientCapabilities = makeCapabilityList config.capabilities; })
+        (mkIf (config.serviceConfig.User or "" == "")
+          { serviceConfig.CapabilityBoundingSet = makeCapabilityList config.capabilities; })
       ];
   };
 
