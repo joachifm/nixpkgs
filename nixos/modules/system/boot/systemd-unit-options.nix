@@ -323,7 +323,7 @@ in rec {
     };
 
     capabilities = mkOption {
-      type = types.listOf (types.enum (lib.capabilities ++ map (x: "~${x}") lib.capabilities));
+      type = types.listOf (types.enum (map (x: "~${x}") capabilities.capabilities ++ capabilities.capabilities));
       default = [];
       example = [ "net_bind_service" ];
       description = ''
@@ -339,6 +339,15 @@ in rec {
         also be removed by prepending <literal>~</literal> to the name.  Doing
         so, inverts the meaning of this option: all capabilities not taken away,
         are granted.
+      '';
+    };
+
+    runAsRoot = mkOption {
+      type = types.bool;
+      default = false;
+      example = true;
+      description = ''
+        Run the service as root.
       '';
     };
   };

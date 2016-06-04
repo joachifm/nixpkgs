@@ -191,7 +191,7 @@ let
     in "${x}/bin/${mkScriptName name}";
 
   makeCapabilityList = caps:
-    concatStringsSep " " (map capFromName caps);
+    concatStringsSep " " (map capabilities.capFromName caps);
 
   unitConfig = { name, config, ... }: {
     config = {
@@ -270,10 +270,9 @@ let
               ${config.postStop}
             '';
           })
-        (mkIf (config.serviceConfig.User or "" != "" &&
-               config.capabilities != [])
+        (mkIf (!config.runAsRoot)
           { serviceConfig.AmbientCapabilities = makeCapabilityList config.capabilities; })
-        (mkIf (config.serviceConfig.User or "" == "")
+        (mkIf (config.runAsRoot)
           { serviceConfig.CapabilityBoundingSet = makeCapabilityList config.capabilities; })
       ];
   };
