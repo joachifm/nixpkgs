@@ -7,6 +7,8 @@ let
   cfg = config.networking.tcpcrypt;
 
   divertPort = 666;
+  runtimeDir = "/run/tcpcryptd";
+  ctrlSocket = "/run/tcpcryptd-ctrl.socket";
 
 in
 
@@ -48,31 +50,33 @@ in
       path = with pkgs; [ iptables tcpcrypt procps ];
 
       preStart = ''
-        mkdir -m 755 -p /run/tcpcryptd
-        chown tcpcryptd /run/tcpcryptd
+        # Ideally, we'd use RuntimeDirectory, but since we're running as root,
+        # the permissions would end up wrong, so do it manually.
+        mkdir -m 755 -p ${runtimeDir}
+        chown tcpcryptd ${runtimeDir}
 
         sysctl -n net.ipv4.tcp_ecn >/run/pre-tcpcrypt-ecn-state
         sysctl -w net.ipv4.tcp_ecn=0
 
         iptables -t raw -N nixos-tcpcrypt
-        iptables -t raw -A nixos-tcpcrypt -p tcp -m mark --mark 0x0/0x10 -j NFQUEUE --queue-num ${divertPort}
+        iptables -t raw -A nixos-tcpcrypt -p tcp -m mark --mark 0x0/0x10 -j NFQUEUE --queue-num ${toString divertPort}
         iptables -t raw -I PREROUTING -j nixos-tcpcrypt
 
         iptables -t mangle -N nixos-tcpcrypt
-        iptables -t mangle -A nixos-tcpcrypt -p tcp -m mark --mark 0x0/0x10 -j NFQUEUE --queue-num ${divertPort}
+        iptables -t mangle -A nixos-tcpcrypt -p tcp -m mark --mark 0x0/0x10 -j NFQUEUE --queue-num ${toString divertPort}
         iptables -t mangle -I POSTROUTING -j nixos-tcpcrypt
       '';
 
       script = ''
-        tcpcryptd -x 0x10 -p ${toString divertPort} -u /run/tcpcryptd.control -U tcpcryptd -J /run/tcpcryptd
+        tcpcryptd -x 0x10 -p ${toString divertPort} -u ${ctrlSocket} -U tcpcryptd -J ${runtimeDir}
       '';
 
       postStop = ''
         if [ -f /run/pre-tcpcrypt-ecn-state ]; then
-          sysctl -w net.ipv4.tcp_ecn=$(cat /run/pre-tcpcrypt-ecn-state)
+          sysctl -w net.ipv4.tcp_ecn=$(< /run/pre-tcpcrypt-ecn-state)
         fi
 
-        rm -rf /run/tcpcryptd
+        rm -rf ${runtimeDir}
 
         iptables -t mangle -D POSTROUTING -j nixos-tcpcrypt || true
         iptables -t raw -D PREROUTING -j nixos-tcpcrypt || true
