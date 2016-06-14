@@ -1,20 +1,28 @@
-{ stdenv, lua, fetchFromGitHub, fetchurl, which, llvm, clang, ncurses }:
+{ stdenv, lua, fetchFromGitHub, fetchurl, which, llvmPackages, ncurses,
+  enableSharedLibraries ? true }:
 
-let luajitArchive = "LuaJIT-2.0.4.tar.gz";
-    luajitSrc = fetchurl {
+let llvm     = llvmPackages.llvm;
+    toRemove = if enableSharedLibraries
+                 then "libterra.a"
+                 else "terra.so";
+
+    luajitArchive = "LuaJIT-2.0.4.tar.gz";
+    luajitSrc     = fetchurl {
       url = "http://luajit.org/download/${luajitArchive}";
       sha256 = "0zc0y7p6nx1c0pp4nhgbdgjljpfxsb5kgwp4ysz22l1p2bms83v2";
     };
 in stdenv.mkDerivation rec {
   name = "terra-git-${version}";
-  version = "2016-01-06";
+  version = "2016-06-09";
 
   src = fetchFromGitHub {
     owner = "zdevito";
     repo = "terra";
-    rev = "914cb98b8adcd50b2ec8205ef5d6914d3547e281";
-    sha256 = "1q0dm9gkx2lh2d2sfgly6j5nw32qigmlj3phdvjp26bz99cvxq46";
+    rev = "22696f178be8597af555a296db804dba820638ba";
+    sha256 = "1c2i9ih331304bh31c5gh94fx0qa49rsn70pvczvdfhi8pmcms6g";
   };
+
+  outputs = [ "dev" "out" "bin" ];
 
   patchPhase = ''
     substituteInPlace Makefile --replace \
@@ -27,11 +35,16 @@ in stdenv.mkDerivation rec {
   '';
 
   installPhase = ''
-    mkdir -p $out
+    mkdir -p $out $bin $dev
     cp -r "release/"* $out
-  '';
+    mv $out/lib $dev
+    mv $out/include $dev
+    mv $out/bin $bin
+    rm -f $dev/lib/${toRemove}
+  ''
+  ;
 
-  buildInputs = [ which lua llvm clang ncurses ];
+  buildInputs = [ which lua llvm llvmPackages.clang-unwrapped ncurses ];
 
   meta = with stdenv.lib; {
     inherit (src.meta) homepage;
