@@ -100,6 +100,7 @@ doNotDisplayTwice rec {
   sqliteInteractive = sqlite-interactive;  # added 2014-12-06
   system_config_printer = system-config-printer;  # added 2016-01-03
   telepathy_qt5 = qt5.telepathy;  # added 2015-12-19
+  torbrowser = tor-browser; # added 2016-05-29
   tftp_hpa = tftp-hpa; # added 2015-04-03
   usb_modeswitch = usb-modeswitch; # added 2016-05-10
   vimbWrapper = vimb; # added 2015-01
