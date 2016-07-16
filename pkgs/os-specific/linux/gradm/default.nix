@@ -1,44 +1,57 @@
-{ fetchurl, stdenv, bison, flex, pam,
-  gcc, coreutils, findutils, binutils, bash }:
+{ stdenv, fetchurl
+, bison, flex
+, pam
+}:
 
 stdenv.mkDerivation rec {
   name    = "gradm-${version}";
-  version = "3.1-201507191652";
+  version = "3.1-201603152148";
 
   src  = fetchurl {
     url    = "http://grsecurity.net/stable/${name}.tar.gz";
-    sha256 = "0l3s56wvk5kpd2qppl328x4alh327xnbf271lh1fan84pxbw651g";
+    sha256 = "1dfpdzlf4lmpq84zr2hhmw6qvd2zf1h2karmialbipsxr75xxx07";
   };
 
-  buildInputs = [ gcc coreutils findutils binutils pam flex bison bash ];
+  nativeBuildInputs = [ bison flex ];
+  buildInputs = [ pam ];
+
+  makeFlags = [
+    "DESTDIR=$out"
+    "LEX=${flex}/bin/flex"
+    "MANDIR=/share/man"
+    "MKNOD=true"
+  ];
+
   preBuild = ''
-    substituteInPlace ./Makefile --replace "/usr/include/security/pam_" "${pam}/include/security/pam_"
-    substituteInPlace ./gradm_defs.h --replace "/sbin/grlearn"   "$out/sbin/grlearn"
-    substituteInPlace ./gradm_defs.h --replace "/sbin/gradm"     "$out/sbin/gradm"
+    substituteInPlace Makefile \
+      --replace "/usr/bin/" "" \
+      --replace "/usr/include/security/pam_" "${pam}/include/security/pam_"
+
+    substituteInPlace gradm_defs.h \
+      --replace "/sbin/grlearn" "$out/bin/grlearn" \
+      --replace "/sbin/gradm" "$out/bin/gradm" \
+      --replace "/sbin/gradm_pam" "$out/bin/gradm_pam"
   '';
 
-  postInstall = ''
-    mkdir -p $out/lib/udev/rules.d
-    cat > $out/lib/udev/rules.d/80-grsec.rules <<EOF
+  # The install target wants to do all sorts of stuff, it is easier to just
+  # overwrite it with our own installation procedure
+  installPhase = ''
+    mkdir -p $out/bin
+    cp gradm gradm_pam grlearn $out/bin
+
+    mkdir -p $out/etc/udev/rules.d
+    cat >$out/etc/udev/rules.d/80-grsec.rules <<EOF
     ACTION!="add|change", GOTO="permissions_end"
-    KERNEL=="grsec",          MODE="0622"
+    KERNEL=="grsec", MODE="0622"
     LABEL="permissions_end"
     EOF
 
-    echo "inherit-learn /nix/store" >> $out/etc/grsec/learn_config
-  '';
+    mkdir -p $out/share/man/man8
+    cp gradm.8 $out/share/man/man8
 
-  makeFlags =
-    [ "DESTDIR=$(out)"
-      "CC=${gcc}/bin/gcc"
-      "FLEX=${flex}/bin/flex"
-      "BISON=${bison}/bin/bison"
-      "FIND=${findutils}/bin/find"
-      "STRIP=${binutils.out}/bin/strip"
-      "INSTALL=${coreutils}/bin/install"
-      "MANDIR=/share/man"
-      "MKNOD=true"
-    ];
+    mkdir -p $out/share/gradm
+    cp learn_config policy $out/share/gradm
+  '';
 
   enableParallelBuilding = true;
 
@@ -47,6 +60,6 @@ stdenv.mkDerivation rec {
     homepage    = "https://grsecurity.net";
     license     = licenses.gpl2;
     platforms   = platforms.linux;
-    maintainers = with maintainers; [ thoughtpolice ];
+    maintainers = with maintainers; [ thoughtpolice joachifm ];
   };
 }
