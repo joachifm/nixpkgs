@@ -3,6 +3,9 @@
 with stdenv.lib;
 
 ''
+SECURITY n
+SECURITYFS n
+
 GRKERNSEC y
 PAX y
 
