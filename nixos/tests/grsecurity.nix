@@ -9,7 +9,6 @@ import ./make-test.nix ({ pkgs, ...} : {
   machine = { config, pkgs, ... }:
     { security.grsecurity.enable = true;
       boot.kernel.sysctl."kernel.grsecurity.deter_bruteforce" = 0;
-      security.apparmor.enable = true;
     };
 
   testScript = ''
