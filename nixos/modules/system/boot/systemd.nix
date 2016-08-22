@@ -279,6 +279,7 @@ let
                 "${directive}" = renderCapabilities config.capabilities;
                 NoNewPrivileges = true;
               };
+              unitConfig.ConditionCapability = renderCapabilities config.capabilities;
             }
         )
         (mkIf (!config.allowRWXMapping) {
