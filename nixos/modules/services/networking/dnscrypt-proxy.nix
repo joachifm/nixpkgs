@@ -205,6 +205,7 @@ in
 
       after = [ "network.target" ] ++ optional apparmorEnabled "apparmor.service";
       requires = [ "dnscrypt-proxy.socket "] ++ optional apparmorEnabled "apparmor.service";
+      privateNetwork = false;
 
       serviceConfig = {
         Type = "simple";
@@ -213,10 +214,6 @@ in
 
         User = "dnscrypt-proxy";
         Group = "dnscrypt-proxy";
-
-        PrivateTmp = true;
-        PrivateDevices = true;
-        ProtectHome = true;
       };
     };
   };
