@@ -322,6 +322,57 @@ in rec {
       '';
     };
 
+    capabilities = mkOption {
+      # TODO: maybe auto-generate this type enum
+      type = types.enum
+        [ "audit_control"
+          "audit_write"
+          "block_suspend"
+          "cap_chown"
+          "dac_override"
+          "dac_read_search"
+          "fowner"
+          "fsetid"
+          "ipc_lock"
+          "ipc_owner"
+          "kill"
+          "linux_immutable"
+          "mac_admin"
+          "mac_override"
+          "mknod"
+          "net_admin"
+          "net_bind_service"
+          "net_broadcast"
+          "setgid"
+          "setfcap"
+          "setpcap"
+          "setuid"
+          "sys_admin"
+          "setgid"
+          "sys_boot"
+          "sys_chroot"
+          "sys_module"
+          "sys_nice"
+          "sys_pacct"
+          "sys_ptrace"
+          "sys_rawio"
+          "sys_resource"
+          "sys_time"
+          "sys_tty_config"
+          "syslog"
+          "wake_alarm"
+        ];
+      default = [];
+      description = ''
+        Capabilities granted to the service, as described in
+        <citerefentry><refentrytitle>capabilities</refentrytitle>
+        <manvolnum>7</manvolnum></citerefentry>.  The default is to
+        drop all capabilities.  This option can be used to grant
+        unprivileged services limited root capabilities, such as
+        binding to ports below 1024.
+      '';
+    };
+
   };
 
 

@@ -265,6 +265,18 @@ let
               ${config.postStop}
             '';
           })
+        (let
+           runAsRoot = (config.serviceConfig.User ? "root") == "root";
+           directive = if runAsRoot
+             then "CapabilityBoundingSet"
+             else "AmbientCapabilities";
+           renderCapabilities = xs: concatStringsSep " " (map (x: "CAP_${uppercase x}") xs);
+         in { serviceConfig = {
+                "${directive}" = renderCapabilities config.capabilities;
+                NoNewPrivileges = true;
+              };
+            }
+        )
       ];
   };
 
