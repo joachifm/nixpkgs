@@ -265,6 +265,7 @@ let
               ${config.postStop}
             '';
           })
+        # Least privilege related options to follow:
         (mkIf config.privateNetwork
           { serviceConfig.PrivateNetwork = true; })
         (mkIf config.privateTmp
@@ -277,6 +278,8 @@ let
            renderCapabilities = xs: concatStringsSep " " (map (x: "CAP_${uppercase x}") xs);
          in { serviceConfig = {
                 "${directive}" = renderCapabilities config.capabilities;
+                # TODO: this breaks services that need to call setuid binaries
+                # for whatever reason
                 NoNewPrivileges = true;
               };
               unitConfig.ConditionCapability = renderCapabilities config.capabilities;
