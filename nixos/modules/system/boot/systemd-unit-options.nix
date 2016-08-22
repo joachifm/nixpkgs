@@ -322,6 +322,19 @@ in rec {
       '';
     };
 
+    trustedService = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        The service is trusted and no additional hardening is performed
+        on the systemd service level.  The purpose of this option is to
+        avoid messing with units that already have sensible defaults or
+        should be allowed to run unconstrained (as far as systemd is
+        concerned).
+      '';
+      internal = true;
+    };
+
     capabilities = mkOption {
       # TODO: maybe auto-generate this type enum
       type = types.enum

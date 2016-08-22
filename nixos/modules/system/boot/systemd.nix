@@ -265,7 +265,8 @@ let
               ${config.postStop}
             '';
           })
-        # Least privilege related options to follow:
+        # Least privilege settings for "untrusted" services
+        ] ++ optionals (!config.trustedService) [
         (mkIf config.privateNetwork
           { serviceConfig.PrivateNetwork = true; })
         (mkIf config.privateTmp
