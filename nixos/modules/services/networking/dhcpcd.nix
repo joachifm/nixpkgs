@@ -166,7 +166,8 @@ in
 
         path = [ dhcpcd pkgs.nettools pkgs.openresolv ];
 
-        unitConfig.ConditionCapability = "CAP_NET_ADMIN";
+        capabilities = [ "net_admin" ];
+        privateNetwork = false;
 
         serviceConfig =
           { Type = "forking";
