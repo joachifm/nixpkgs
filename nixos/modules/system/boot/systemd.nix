@@ -279,8 +279,8 @@ let
            renderCapabilities = xs: concatStringsSep " " (map (x: "CAP_${uppercase x}") xs);
          in { serviceConfig = {
                 "${directive}" = renderCapabilities config.capabilities;
-                # TODO: this breaks services that need to call setuid binaries
-                # for whatever reason
+                # TODO: this breaks services that expect to gain elevated
+                # privileges by calling setuid binaries.
                 NoNewPrivileges = true;
               };
               unitConfig.ConditionCapability = renderCapabilities config.capabilities;
