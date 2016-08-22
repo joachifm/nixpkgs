@@ -361,6 +361,17 @@ in
       { path = [ nix pkgs.openssl.bin pkgs.utillinux config.programs.ssh.package ]
           ++ optionals cfg.distributedBuilds [ pkgs.gzip ];
 
+        capabilities = [
+          "chown"
+          "mknod"
+          "setuid"
+          "setgid"
+          "sys_admin"
+          "sys_chroot"
+        ];
+
+        privateNetwork = false;
+
         environment = cfg.envVars
           // { CURL_CA_BUNDLE = "/etc/ssl/certs/ca-certificates.crt"; }
           // config.networking.proxy.envVars;
