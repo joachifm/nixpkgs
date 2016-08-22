@@ -373,6 +373,30 @@ in rec {
       '';
     };
 
+    privateNetwork = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Whether to run the service in a private network namespace.  When
+        enabled, the service can still communicate with local clients
+        via named pipes, but unnamed pipes and TCP sockets will be
+        isolated. Leave as-is unless the service must be allowed access
+        to the external network or is set up to communicate with local
+        clients over anything other than named pipes.
+      '';
+    };
+
+    privateTmp = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Whether to run the service with a private
+        <filename>/tmp</filename>.  Leave as-is unless the service has a
+        legitimate reason to inspect or share its temporary data with
+        processes outside the service scope.
+      '';
+    };
+
   };
 
 

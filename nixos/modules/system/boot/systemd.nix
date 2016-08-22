@@ -265,6 +265,10 @@ let
               ${config.postStop}
             '';
           })
+        (mkIf config.privateNetwork
+          { serviceConfig.PrivateNetwork = true; })
+        (mkIf config.privateTmp
+          { serviceConfig.PrivateTmp = true; })
         (let
            runAsRoot = (config.serviceConfig.User ? "root") == "root";
            directive = if runAsRoot
