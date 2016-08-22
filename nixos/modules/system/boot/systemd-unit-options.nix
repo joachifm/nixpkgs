@@ -412,10 +412,9 @@ in rec {
       type = types.listOf types.path;
       default = [];
       description = ''
-        Devices from the host available within the service execution
-        environment.  The pseduo devices <literal>zero</literal>,
-        <literal>null</literal>, and <literal>urandom</literal> are
-        always available.
+        Devices from the host available to the service. The pseduo
+        devices <literal>zero</literal>, <literal>null</literal>, and
+        <literal>urandom</literal> are always available.
       '';
     };
 
