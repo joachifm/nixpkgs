@@ -284,6 +284,11 @@ let
         (mkIf (!config.allowRWXMapping) {
           { serviceConfig.MemoryDenyWriteExecute = true; }
         })
+        {
+          serviceConfig.DeviceAllow = concatStringsSep " "
+            [ "/dev/zero" "/dev/null" "/dev/urandom" ] ++ config.availableDevices;
+          serviceConfig.DevicePolicy = "strict";
+        }
         # Always-on hardening. These should be safe to always enable and
         # so have no corresponding option.
         { serviceConfig.RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ];
