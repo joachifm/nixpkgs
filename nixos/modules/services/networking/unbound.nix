@@ -103,6 +103,8 @@ in
       wants = [" nss-lookup.target" ];
       wantedBy = [ "multi-user.target" ];
 
+      privateNetwork = false;
+
       capabilities = [
         # Allow bind to port < 1024
         "net_bind_service"
