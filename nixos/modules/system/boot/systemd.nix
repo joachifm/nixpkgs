@@ -297,6 +297,10 @@ let
         # so have no corresponding option.
         { serviceConfig.RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ];
           serviceConfig.ProtectHome = true; # TODO: questionable ...
+          serviceConfig.ProtectSystem = true;
+          # TODO: we would like to generate multiple SystemCallFilter
+          # directives, to support both black and whitelisting.
+          serviceConfig.SystemCallFilter = "~@cpu-emulation @debug @keyring @obsolete";
         }
       ];
   };
