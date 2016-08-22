@@ -360,6 +360,7 @@ in
       description = "Nginx Web Server";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
+      privateNetwork = false;
       preStart =
         ''
         mkdir -p ${cfg.stateDir}/logs
