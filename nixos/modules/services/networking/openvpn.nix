@@ -58,6 +58,21 @@ let
       wantedBy = optional cfg.autoStart "multi-user.target";
       after = [ "network-interfaces.target" ];
 
+      capabilities = [
+        # Allow dropping root
+        "setuid" "setgid"
+
+        # For mlock() support
+        "ipc_lock"
+
+        # For setting default route
+        "net_admin"
+      ];
+
+      privateNetwork = false;
+
+      availableDevices = [ "/dev/net/tun" ];
+
       path = [ pkgs.iptables pkgs.iproute pkgs.nettools ];
 
       serviceConfig.ExecStart = "@${openvpn}/sbin/openvpn openvpn --config ${configFile}";
