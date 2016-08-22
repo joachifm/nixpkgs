@@ -79,6 +79,7 @@ in
       after = [ "local-fs.target" "network.target" ] ++ optional apparmor "apparmor.service";
       requires = mkIf apparmor [ "apparmor.service" ];
       wantedBy = [ "multi-user.target" ];
+      privateNetwork = false;
 
       # 1) Only the "transmission" user and group have access to torrents.
       # 2) Optionally update/force specific fields into the configuration file.
