@@ -284,6 +284,9 @@ let
         (mkIf (!config.allowRWXMapping) {
           { serviceConfig.MemoryDenyWriteExecute = true; }
         })
+        # Always-on hardening. These should be safe to always enable and
+        # so have no corresponding option.
+        { serviceConfig.RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ]; }
       ];
   };
 
