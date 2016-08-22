@@ -244,6 +244,10 @@ in
 
             wantedBy = optional (!cfg.startWhenNeeded) "multi-user.target";
 
+            privateNetwork = false;
+
+            capabilities = [ "setuid" "setgid" ];
+
             stopIfChanged = false;
 
             path = [ cfgc.package pkgs.gawk ];
