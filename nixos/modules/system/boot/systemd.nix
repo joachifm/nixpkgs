@@ -286,7 +286,9 @@ let
         })
         # Always-on hardening. These should be safe to always enable and
         # so have no corresponding option.
-        { serviceConfig.RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ]; }
+        { serviceConfig.RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ];
+          serviceConfig.ProtectHome = true; # TODO: questionable ...
+        }
       ];
   };
 
