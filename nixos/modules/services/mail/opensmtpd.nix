@@ -107,6 +107,7 @@ in {
       wantedBy = [ "multi-user.target" ];
       wants = [ "network.target" ];
       after = [ "network.target" ];
+      privateNetwork = false;
       preStart = ''
         mkdir -p /var/spool/smtpd
 
