@@ -397,6 +397,17 @@ in rec {
       '';
     };
 
+    allowRWXMapping = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether to permit RWX memory mappings. By default, executing
+        code from writable memory causes immediate process termination.
+        Leave as-is unless the service makes use of JIT compilation or
+        otherwise depends on executing code generated at runtime.
+      '';
+    };
+
   };
 
 

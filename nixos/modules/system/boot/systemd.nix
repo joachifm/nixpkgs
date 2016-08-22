@@ -281,6 +281,9 @@ let
               };
             }
         )
+        (mkIf (!config.allowRWXMapping) {
+          { serviceConfig.MemoryDenyWriteExecute = true; }
+        })
       ];
   };
 
