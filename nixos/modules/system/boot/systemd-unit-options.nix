@@ -322,6 +322,18 @@ in rec {
       '';
     };
 
+    user = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = ''
+        Run main process as this user.  By default, the service is
+        configured to run under a user of the same name as the service.
+        If root privileges are required (e.g., if the daemon performs
+        its own privsep), set <literal>"root"</literal>. For short-lived
+        service units, <literal>"nobody"</literal> can be used.
+      '';
+    };
+
     trustedService = mkOption {
       type = types.bool;
       default = false;
