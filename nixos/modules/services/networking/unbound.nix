@@ -103,6 +103,17 @@ in
       wants = [" nss-lookup.target" ];
       wantedBy = [ "multi-user.target" ];
 
+      capabilities = [
+        # Allow bind to port < 1024
+        "net_bind_service"
+
+        # Required for unbound's builtin privsep
+        "sys_resource"
+        "setuid"
+        "setgid"
+        "sys_chroot"
+      ];
+
       preStart = ''
         mkdir -m 0755 -p ${stateDir}/dev/
         cp ${confFile} ${stateDir}/unbound.conf
@@ -117,6 +128,10 @@ in
       serviceConfig = {
         ExecStart = "${pkgs.unbound}/bin/unbound -d -c ${stateDir}/unbound.conf";
         ExecStopPost="${pkgs.utillinux}/bin/umount ${stateDir}/dev/random";
+
+        # Run preStart with full capabilities, otherwise we'd have to
+        # grant it sys_admin in order to do the mount/unmount.
+        PermissionsStartOnly = true;
       };
     };
 
