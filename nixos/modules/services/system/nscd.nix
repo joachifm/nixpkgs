@@ -63,6 +63,8 @@ in
 
         restartTriggers = [ config.environment.etc.hosts.source config.environment.etc."nsswitch.conf".source ];
 
+        privateNetwork = false;
+
         serviceConfig =
           { ExecStart = "@${pkgs.glibc.bin}/sbin/nscd nscd -f ${cfgFile}";
             Type = "forking";
