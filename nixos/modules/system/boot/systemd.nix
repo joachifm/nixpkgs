@@ -286,9 +286,8 @@ let
               unitConfig.ConditionCapability = renderCapabilities config.capabilities;
             }
         )
-        (mkIf (!config.allowRWXMapping) {
-          { serviceConfig.MemoryDenyWriteExecute = true; }
-        })
+        (mkIf (!config.allowRWXMapping)
+          { serviceConfig.MemoryDenyWriteExecute = true; })
         {
           serviceConfig.DeviceAllow = concatStringsSep " "
             [ "/dev/zero" "/dev/null" "/dev/urandom" ] ++ config.availableDevices;
@@ -301,6 +300,7 @@ let
           serviceConfig.ProtectSystem = true;
           # TODO: we would like to generate multiple SystemCallFilter
           # directives, to support both black and whitelisting.
+          # TODO: needs to be opt-in, performance penalty
           serviceConfig.SystemCallFilter = "~@cpu-emulation @debug @keyring @obsolete";
         }
       ];
