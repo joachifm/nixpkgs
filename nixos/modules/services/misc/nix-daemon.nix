@@ -363,9 +363,12 @@ in
 
         capabilities = [
           "chown"
+          "dac_override"
+          "fowner"
           "mknod"
-          "setuid"
+          "net_admin"
           "setgid"
+          "setuid"
           "sys_admin"
           "sys_chroot"
         ];
@@ -382,9 +385,6 @@ in
           { Nice = cfg.daemonNiceLevel;
             IOSchedulingPriority = cfg.daemonIONiceLevel;
             LimitNOFILE = 4096;
-            ReadOnlyPaths = "/ /etc";
-            InaccessiblePaths = "/root /home /var/cache /var/db /var/lib /var/log /var/spool";
-            ReadWritePaths = "/nix/store /nix/var /var/tmp /tmp";
           };
 
         restartTriggers = [ nixConf ];
