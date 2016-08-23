@@ -265,12 +265,25 @@ let
               ${config.postStop}
             '';
           })
+
         # Least privilege settings for "untrusted" services
-        ] ++ optionals (!config.trustedService) [
+        /*] ++ optionals (!config.trustedService) [*/
         (mkIf config.privateNetwork
-          { serviceConfig.PrivateNetwork = true; })
+          { serviceConfig.PrivateNetwork = mkDefault true; })
         (mkIf config.privateTmp
-          { serviceConfig.PrivateTmp = true; })
+          { serviceConfig.PrivateTmp = mkDefault true; })
+        (mkIf (!config.allowRWXMapping)
+          { serviceConfig.MemoryDenyWriteExecute = mkDefault true; })
+        { serviceConfig.RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ];
+          serviceConfig.ProtectHome = mkDefault true; # TODO: questionable ...
+          serviceConfig.ProtectSystem = mkDefault true;
+          # TODO: we would like to generate multiple SystemCallFilter
+          # directives, to support both black and whitelisting.
+          # TODO: needs to be opt-in, performance penalty
+          serviceConfig.SystemCallFilter = mkDefault "~@cpu-emulation @debug @keyring @obsolete";
+        }
+        /* TODO: fixme */
+        /*
         (let
            runAsRoot = (config.serviceConfig.User ? "root") == "root";
            directive = if runAsRoot
@@ -285,24 +298,18 @@ let
               };
               unitConfig.ConditionCapability = renderCapabilities config.capabilities;
             }
-        )
-        (mkIf (!config.allowRWXMapping)
-          { serviceConfig.MemoryDenyWriteExecute = true; })
+        )*/
+        /* TODO: decide on option format and fix rendering */
+        /*
         {
-          serviceConfig.DeviceAllow = concatStringsSep " "
-            [ "/dev/zero" "/dev/null" "/dev/urandom" ] ++ config.availableDevices;
-          serviceConfig.DevicePolicy = "strict";
+          serviceConfig.DeviceAllow =
+            let deviceAllow = "/dev/zero r /dev/null r /dev/urandom r"
+              + concatStringSsep " " (map ({ devSpec, ctrl ? "r" }: "${devSpec} ${ctrl}")
+                                          config.availableDevices);
+            in mkDefault deviceAllow;
+          serviceConfig.DevicePolicy = mkDefault "strict";
         }
-        # Always-on hardening. These should be safe to always enable and
-        # so have no corresponding option.
-        { serviceConfig.RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ];
-          serviceConfig.ProtectHome = true; # TODO: questionable ...
-          serviceConfig.ProtectSystem = true;
-          # TODO: we would like to generate multiple SystemCallFilter
-          # directives, to support both black and whitelisting.
-          # TODO: needs to be opt-in, performance penalty
-          serviceConfig.SystemCallFilter = "~@cpu-emulation @debug @keyring @obsolete";
-        }
+        */
       ];
   };
 
