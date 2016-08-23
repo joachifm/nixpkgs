@@ -267,21 +267,22 @@ let
           })
 
         # Least privilege settings for "untrusted" services
-        /*] ++ optionals (!config.trustedService) [*/
-        (mkIf config.privateNetwork
-          { serviceConfig.PrivateNetwork = mkDefault true; })
-        (mkIf config.privateTmp
-          { serviceConfig.PrivateTmp = mkDefault true; })
-        (mkIf (!config.allowRWXMapping)
-          { serviceConfig.MemoryDenyWriteExecute = mkDefault true; })
-        { serviceConfig.RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ];
-          serviceConfig.ProtectHome = mkDefault true; # TODO: questionable ...
-          serviceConfig.ProtectSystem = mkDefault true;
-          # TODO: we would like to generate multiple SystemCallFilter
-          # directives, to support both black and whitelisting.
-          # TODO: needs to be opt-in, performance penalty
-          serviceConfig.SystemCallFilter = mkDefault "~@cpu-emulation @debug @keyring @obsolete";
-        }
+        (mkIf (!config.trustedService) (mkMerge [
+          (mkIf config.privateNetwork
+            { serviceConfig.PrivateNetwork = mkDefault true; })
+          (mkIf config.privateTmp
+            { serviceConfig.PrivateTmp = mkDefault true; })
+          (mkIf (!config.allowRWXMapping)
+            { serviceConfig.MemoryDenyWriteExecute = mkDefault true; })
+          { serviceConfig.RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ];
+            serviceConfig.ProtectHome = mkDefault true; # TODO: questionable ...
+            serviceConfig.ProtectSystem = mkDefault true;
+            # TODO: we would like to generate multiple SystemCallFilter
+            # directives, to support both black and whitelisting.
+            # TODO: needs to be opt-in, performance penalty
+            serviceConfig.SystemCallFilter = mkDefault "~@obsolete";
+          }
+        ]))
         /* TODO: fixme */
         /*
         (let
