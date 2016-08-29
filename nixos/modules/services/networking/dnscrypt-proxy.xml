@@ -1,0 +1,36 @@
+<chapter xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         version="5.0"
+         xml:id="sec-dnscrypt-proxy">
+
+  <title>DNSCrypt client proxy</title>
+
+  <para>
+    The proxy relays DNS queries to a DNSCrypt enabled upstream
+    resolver. The traffic between the client and the upstream resolver is
+    encrypted and authenticated, mitigating the risk of MITM attacks and
+    third-party snooping (assuming the upstream is trustworthy).
+  </para>
+
+  <para>
+    Enabling the client proxy does not alter the system nameserver; to
+    relay local queries, prepend <literal>127.0.0.1</literal> to
+    <option>networking.nameservers</option>.
+  </para>
+
+  <para>
+    The recommended configuration is to run DNSCrypt proxy as a forwarder
+    for a caching DNS client, as in
+    <programlisting>
+      {
+      services.dnscrypt-proxy.enable = true;
+      services.dnscrypt-proxy.localPort = 43;
+      services.dnsmasq.enable = true;
+      services.dnsmasq.servers = [ "127.0.0.1#43" ];
+      services.dnsmasq.resolveLocalQueries = true; # this is the default
+      }
+    </programlisting>
+  </para>
+
+</chapter>
