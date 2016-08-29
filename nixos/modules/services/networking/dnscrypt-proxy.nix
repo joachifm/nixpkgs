@@ -91,22 +91,25 @@ in
         type = types.nullOr (types.submodule ({ ... }: { options = {
           address = mkOption {
             type = types.str;
-            description = "Resolver IP address";
+            description = "IP address";
             example = "208.67.220.220";
           };
+
           port = mkOption {
             type = types.int;
-            description = "Resolver port";
+            description = "Port";
             default = 443;
           };
+
           name = mkOption {
             type = types.str;
-            description = "Provider fully qualified domain name";
+            description = "Fully qualified domain name";
             example = "2.dnscrypt-cert.opendns.com";
           };
+
           key = mkOption {
             type = types.str;
-            description = "Provider public key";
+            description = "Public key";
             example = "B735:1140:206F:225D:3E2B:D822:D7FD:691E:A1C3:3CC8:D666:8D0C:BE04:BFAB:CA43:FB79";
           };
         }; }));
