@@ -146,36 +146,7 @@ in
       }
     ];
 
-    security.apparmor.profiles = mkIf apparmorEnabled (singleton (pkgs.writeText "apparmor-dnscrypt-proxy" ''
-      ${dnscrypt-proxy}/bin/dnscrypt-proxy {
-        /dev/null rw,
-        /dev/urandom r,
-
-        /etc/passwd r,
-        /etc/group r,
-        ${config.environment.etc."nsswitch.conf".source} r,
-
-        ${getLib pkgs.glibc}/lib/*.so mr,
-        ${pkgs.tzdata}/share/zoneinfo/** r,
-
-        network inet stream,
-        network inet6 stream,
-        network inet dgram,
-        network inet6 dgram,
-
-        ${getLib pkgs.gcc.cc}/lib/libssp.so.* mr,
-        ${getLib pkgs.libsodium}/lib/libsodium.so.* mr,
-        ${getLib pkgs.systemd}/lib/libsystemd.so.* mr,
-        ${getLib pkgs.xz}/lib/liblzma.so.* mr,
-        ${getLib pkgs.libgcrypt}/lib/libgcrypt.so.* mr,
-        ${getLib pkgs.libgpgerror}/lib/libgpg-error.so.* mr,
-        ${getLib pkgs.libcap}/lib/libcap.so.* mr,
-        ${getLib pkgs.lz4}/lib/liblz4.so.* mr,
-        ${getLib pkgs.attr}/lib/libattr.so.* mr,
-
-        ${cfg.resolverList} r,
-      }
-    ''));
+    security.apparmor-ng.packages = [ pkgs.dnscrypt-proxy ];
 
     users.users.dnscrypt-proxy = {
       description = "dnscrypt-proxy daemon user";
@@ -193,14 +164,13 @@ in
       wantedBy = [ "sockets.target" ];
     };
 
-    systemd.services.dnscrypt-proxy = {
+    systemd.services.dnscrypt-proxy = rec {
       description = "dnscrypt-proxy daemon";
 
-      after = [ "network.target" ] ++ optional apparmorEnabled "apparmor.service";
-      requires = [ "dnscrypt-proxy.socket "] ++ optional apparmorEnabled "apparmor.service";
+      after = [ "network.target" ] ++ optional apparmorEnabled [ "apparmor.service" ];
+      requires = [ "dnscrypt-proxy.socket "];
 
       serviceConfig = {
-        Type = "simple";
         NonBlocking = "true";
         ExecStart = "${dnscrypt-proxy}/bin/dnscrypt-proxy ${toString daemonArgs}";
 
@@ -209,6 +179,8 @@ in
         PrivateTmp = true;
         PrivateDevices = true;
         ProtectHome = true;
+
+        AppArmorProfile = "dnscrypt-proxy";
       };
     };
   };

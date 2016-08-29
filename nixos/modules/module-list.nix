@@ -88,6 +88,7 @@
   ./rename.nix
   ./security/acme.nix
   ./security/apparmor.nix
+  ./security/apparmor-ng.nix
   ./security/apparmor-suid.nix
   ./security/audit.nix
   ./security/ca.nix

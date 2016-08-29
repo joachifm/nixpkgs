@@ -19,6 +19,11 @@ stdenv.mkDerivation rec {
 
   outputs = [ "out" "man" ];
 
+  postInstall = ''
+    mkdir -p $out/etc/apparmor.d
+    cp ${./apparmor.profile} $out/etc/apparmor.d/dnscrypt-proxy
+  '';
+
   meta = {
     description = "A tool for securing communications between a client and a DNS resolver";
     homepage = https://dnscrypt.org/;
