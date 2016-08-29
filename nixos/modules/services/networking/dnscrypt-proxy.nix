@@ -28,6 +28,10 @@ let
 in
 
 {
+  meta = {
+    maintainers = with maintainers; [ joachifm ];
+  };
+
   options = {
     services.dnscrypt-proxy = {
       enable = mkEnableOption "dnscrypt-proxy" // { description = ''
