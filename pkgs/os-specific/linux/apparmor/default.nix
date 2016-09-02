@@ -1,3 +1,5 @@
+
+/*
 { stdenv, fetchurl, makeWrapper, autoreconfHook
 , pkgconfig, which
 , flex, bison
@@ -9,27 +11,8 @@
 }:
 
 let
-  apparmor-series = "2.10";
-  apparmor-version = apparmor-series;
-
-  apparmor-meta = component: with stdenv.lib; {
-    homepage = http://apparmor.net/;
-    description = "A mandatory access control system - ${component}";
-    license = licenses.gpl2;
-    maintainers = with maintainers; [ phreedom thoughtpolice joachifm ];
-    platforms = platforms.linux;
-  };
-
-  apparmor-sources = fetchurl {
-    url = "https://launchpad.net/apparmor/${apparmor-series}/${apparmor-version}/+download/apparmor-${apparmor-version}.tar.gz";
-    sha256 = "1x06qmmbha9krx7880pxj2k3l8fxy3nm945xjjv735m2ax1243jd";
-  };
 
   prePatchCommon = ''
-    substituteInPlace ./common/Make.rules --replace "/usr/bin/pod2man" "${perl}/bin/pod2man"
-    substituteInPlace ./common/Make.rules --replace "/usr/bin/pod2html" "${perl}/bin/pod2html"
-    substituteInPlace ./common/Make.rules --replace "/usr/include/linux/capability.h" "${linuxHeaders}/include/linux/capability.h"
-    substituteInPlace ./common/Make.rules --replace "/usr/share/man" "share/man"
   '';
 
   # FIXME: convert these to a single multiple-outputs package?
@@ -52,12 +35,8 @@ let
       pythonPackages.python
     ];
 
-    # required to build apparmor-parser
-    dontDisableStatic = true;
 
     prePatch = prePatchCommon + ''
-      substituteInPlace ./libraries/libapparmor/src/Makefile.am --replace "/usr/include/netinet/in.h" "${stdenv.cc.libc.dev}/include/netinet/in.h"
-      substituteInPlace ./libraries/libapparmor/src/Makefile.in --replace "/usr/include/netinet/in.h" "${stdenv.cc.libc.dev}/include/netinet/in.h"
     '';
 
     postPatch = "cd ./libraries/libapparmor";
@@ -174,3 +153,4 @@ in
   inherit libapparmor apparmor-utils apparmor-parser apparmor-pam
   apparmor-profiles apparmor-kernel-patches;
 }
+*/

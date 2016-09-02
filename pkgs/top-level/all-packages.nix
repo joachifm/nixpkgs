@@ -7224,8 +7224,8 @@ in
     x265 = if stdenv.isDarwin then null else x265;
     xavs = if stdenv.isDarwin then null else xavs;
     inherit (darwin) CF;
-    inherit (darwin.apple_sdk.frameworks) 
-      Cocoa CoreServices CoreAudio AVFoundation MediaToolbox 
+    inherit (darwin.apple_sdk.frameworks)
+      Cocoa CoreServices CoreAudio AVFoundation MediaToolbox
       VideoDecodeAcceleration;
   };
 
@@ -10791,8 +10791,15 @@ in
 
   microcodeIntel = callPackage ../os-specific/linux/microcode/intel.nix { };
 
+  /*
   inherit (callPackages ../os-specific/linux/apparmor { pythonPackages = python27Packages; swig = swig2; })
     libapparmor apparmor-pam apparmor-parser apparmor-profiles apparmor-utils;
+  */
+
+  apparmor = callPackage ../os-specific/linux/apparmor/multiple-outputs.nix {};
+  libapparmor = apparmor;
+  apparmor-pam = apparmor;
+  apparmor-parser = apparmor;
 
   atop = callPackage ../os-specific/linux/atop { };
 
