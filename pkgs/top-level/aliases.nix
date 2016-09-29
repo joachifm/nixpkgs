@@ -103,6 +103,7 @@ doNotDisplayTwice rec {
   sshfsFuse = sshfs-fuse; # added 2016-09
   system_config_printer = system-config-printer;  # added 2016-01-03
   telepathy_qt5 = qt5.telepathy;  # added 2015-12-19
+  torbrowser = tor-browser; # added 2016-05-29
   tftp_hpa = tftp-hpa; # added 2015-04-03
   ucsFonts = ucs-fonts; # added 2016-07-15
   usb_modeswitch = usb-modeswitch; # added 2016-05-10

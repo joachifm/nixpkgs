@@ -3808,7 +3808,7 @@ in
 
   tor-arm = callPackage ../tools/security/tor/tor-arm.nix { };
 
-  torbrowser = callPackage ../tools/security/tor/torbrowser.nix {
+  tor-browser = callPackage ../applications/networking/browsers/tor-browser {
     inherit (xorg) libXrender libX11 libXext libXt;
   };
 
