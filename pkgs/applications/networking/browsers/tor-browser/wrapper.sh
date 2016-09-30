@@ -40,9 +40,11 @@ exec env -i \
      LD_LIBRARY_PATH=@libPath@ \
      HOME=$HOME \
      DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS \
-     XAUTHORITY=${XAUTHORITY:-$HOME/.Xauthority} \
+     XAUTHORITY=$XAUTHORITY \
      DISPLAY=$DISPLAY \
-     "@interp@" "$tbb_exe" \
+     FONTCONFIG_PATH=$HOME/Data/fontconfig \
+     FONTCONFIG_FILE="fonts.conf" \
+     "$tbb_exe" \
      --class "Tor Browser" \
      --no-remote \
      --profile "$HOME/Data/Browser/profile.default" \

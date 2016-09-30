@@ -5,6 +5,10 @@ export interp=$(< $NIX_CC/nix-support/dynamic-linker)
 tar xf $src
 cd tor-browser_$lang
 
+patchelf \
+    --set-interpreter "$interp" \
+    Browser/firefox
+
 # Fixup the firefox executable.  paxctl + patchelf tends to create
 # invalid ELF headers; thus we only apply the PaX markings and set the
 # dynamic library path and interpreter in the wrapper script.
@@ -57,7 +61,7 @@ chmod +x $out/bin/$pname
 # Post installation test
 (
 HOME=$TMPDIR
-TBB_DEBUG=1 $out/bin/$pname --help >/dev/null
+TBB_DEBUG=1 $out/bin/$pname --help >/dev/null || true
 torrc=$out/share/tor-browser/Browser/TorBrowser/Data/Tor/torrc-defaults
 $out/share/tor-browser/Browser/TorBrowser/Tor/tor -f "$torrc" --help >/dev/null
 )
