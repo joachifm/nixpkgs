@@ -14,7 +14,7 @@
 , freetype
 , gdk_pixbuf
 , glib
-, gtk3
+, gtk2
 , libX11
 , libXext
 , libXrender
@@ -78,7 +78,7 @@ stdenv.mkDerivation rec {
   # For example, tor also requires libevent, gmp, and openssl, but we use the
   # bundled versions to ensure parity with upstream.
   libPath = stdenv.lib.makeLibraryPath [
-    stdenv.cc.cc glib alsaLib dbus dbus_glib gtk3 atk pango freetype
+    stdenv.cc.cc glib alsaLib dbus dbus_glib gtk2 atk pango freetype
     fontconfig gdk_pixbuf cairo libXrender libX11 libXext libXt
     zlib
   ];
