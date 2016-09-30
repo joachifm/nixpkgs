@@ -36,14 +36,14 @@ fi
 tbb_exe=@out@/share/@pname@/Browser/firefox
 
 cd "$HOME"
-exec -a "$tbb_exe" env -i \
+exec env -i \
      LD_LIBRARY_PATH=@libPath@ \
      HOME=$HOME \
      DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS \
-     XAUTHORITY=$XAUTHORITY \
+     XAUTHORITY=${XAUTHORITY:-$HOME/.Xauthority} \
+     DISPLAY=$DISPLAY \
      "@interp@" "$tbb_exe" \
      --class "Tor Browser" \
-     --display=$DISPLAY \
      --no-remote \
      --profile "$HOME/Data/Browser/profile.default" \
      "$@"
