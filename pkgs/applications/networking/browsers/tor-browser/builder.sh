@@ -56,9 +56,8 @@ chmod +x $out/bin/$pname
 
 # Post installation test
 (
-exec >/dev/null
 HOME=$TMPDIR
-TBB_DEBUG=1 $out/bin/$pname --help
+TBB_DEBUG=1 $out/bin/$pname --help >/dev/null
 torrc=$out/share/tor-browser/Browser/TorBrowser/Data/Tor/torrc-defaults
-$out/share/tor-browser/Browser/TorBrowser/Tor/tor -f "$torrc" --help
+$out/share/tor-browser/Browser/TorBrowser/Tor/tor -f "$torrc" --help >/dev/null
 )
