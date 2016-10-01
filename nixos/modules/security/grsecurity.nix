@@ -62,7 +62,8 @@ in
     # required kernel config
     boot.kernelPackages = mkDefault pkgs.linuxPackages_grsec_nixos;
 
-    boot.kernelParams = optional cfg.disableEfiRuntimeServices "noefi";
+    boot.kernelParams = [ "grsec_sysfs_restrict=0" ]
+      ++ optional cfg.disableEfiRuntimeServices "noefi";
 
     system.requiredKernelConfig = with config.lib.kernelConfig;
       [ (isEnabled "GRKERNSEC")
