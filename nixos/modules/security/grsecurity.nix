@@ -17,6 +17,54 @@ let
   # Ascertain whether NixOS container support is required
   containerSupportRequired =
     config.boot.enableContainers && config.containers != {};
+
+  # An initial policy file.
+  initialPolicy = pkgs.substituteAll "policy"
+    { inherit (pkgs) nix;
+      src = ./grsecurity-nixos-policy.in;
+    };
+
+  # A simple minded script for initializing the RBAC setup.  Uses NixOS
+  # defaults to get the user going.  The idea is that the user should be
+  # able to eventually transition to a policy based on full system
+  # learning.
+  #
+  # Ideally, we'd do all this declaratively, but for now do it the ugly
+  # way.
+  gradmInitBin = pkgs.writeScriptBin "gradm_init" ''
+    #! ${pkgs.stdenv.shell}
+    set -e
+
+    # Parameters
+    grsecPolicy=/etc/grsec/policy
+    grsecPasswd=/etc/grsec/pw
+
+    # Initialize policy file, using NixOS defaults
+    if [[ -e "$grsecPolicy" ]] ; then
+      echo "$0: existing policy found at $grsecPolicy; refusing to overwrite" >&2
+      exit 1
+    else
+      cat ${initialPolicy} >"$grsecPolicy"
+    fi
+
+    # Initialize passwd for default roles
+    if [[ -e "$grsecPasswd" ]] ; then
+      echo "$0: existing grsec passwd found at $grsecPasswd; refusing to overwrite" >&2
+      exit 1
+    else
+      echo "Set RBAC password"
+      gradm -P
+
+      echo "Set password for the admin role"
+      gradm -P admin
+
+      echo "Set password for the shutdown role"
+      gradm -P shutdown
+    fi
+
+    # Check everything at the end
+    gradm -C
+  '';
 in
 
 {
@@ -54,6 +102,18 @@ in
       '';
     };
 
+    enforcePolicy = mkOption {
+      type = types.bool;
+      example = true;
+      default = false;
+      description = ''
+        Whether to enforce the grsecurity RBAC policy.  Enabling this
+        option implies that all RBAC roles have been properly
+        initialized and that a suitable policy in place.  Run the
+        <command>gradm_init</command> to initialize RBAC using NixOS
+        defaults.
+      '';
+    };
   };
 
   config = mkIf cfg.enable {
@@ -75,7 +135,7 @@ in
     nixpkgs.config.grsecurity = true;
 
     # Install PaX related utillities into the system profile.
-    environment.systemPackages = with pkgs; [ gradm paxctl pax-utils ];
+    environment.systemPackages = with pkgs; [ gradm paxctl pax-utils gradmInitBin ];
 
     # Install rules for the grsec device node
     services.udev.packages = [ pkgs.gradm ];
@@ -116,12 +176,39 @@ in
       };
     };
 
+    systemd.services.enable-grsec-policy = {
+      after = [ "multi-user.target" ];
+      wantedBy = [ "multi-user.target" ];
+
+      restartIfChanged = false;
+
+      script = ''
+        cat ${cfg.policy} >/etc/grsec/policy
+        if [[ -r /etc/grsec/policy ]] ; then
+          gradm -C
+          gradm -E
+        fi
+      '';
+
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+      };
+
+      # Only run the unit if the user has initialized RBAC roles
+      unitConfig.ConditionPathExists = "/etc/grsec/pw";
+    };
+
     # Configure system tunables
     boot.kernel.sysctl = {
       # Read-only under grsecurity
       "kernel.kptr_restrict" = mkForce null;
-    } // optionalAttrs config.nix.useSandbox {
-      # chroot(2) restrictions that conflict with sandboxed Nix builds
+    } // optionalAttrs (!cfg.enforcePolicy && config.nix.useSandbox) {
+      # chroot(2) restrictions that conflict with sandboxed Nix builds.
+      #
+      # If policy is being enforced we assume that it deals with
+      # disabling the requisite restrictions for Nix daemon/nixbld and
+      # leave these settings enabled.
       "kernel.grsecurity.chroot_caps" = mkForce 0;
       "kernel.grsecurity.chroot_deny_chroot" = mkForce 0;
       "kernel.grsecurity.chroot_deny_mount" = mkForce 0;
