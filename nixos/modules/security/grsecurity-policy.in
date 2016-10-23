@@ -1,0 +1,76 @@
+# role: root
+subject @nix@/bin/nix-daemon o {
+  / h
+
+  /dev
+  /dev/null rw
+  /dev/urandom r
+  /dev/zero r
+
+  /etc/nix/nix.conf r
+
+  /nix/store rwxcld
+  /nix/var   rwxcld
+  /var/tmp   rwxcld
+  /tmp       rwxcld
+
+  /proc r
+  /proc/kallsyms h
+  /proc/kcore h
+  /proc/modules h
+  /proc/sys h
+
+  # Disable all capabilities(7) not required for normal operation
+  -CAP_AUDIT_CONTROL
+  -CAP_AUDIT_READ
+  -CAP_AUDIT_WRITE
+  -CAP_BLOCK_SUSPEND
+  -CAP_LEASE
+  -CAP_LINUX_IMMUTABLE
+  -CAP_MAC_ADMIN
+  -CAP_MAC_OVERRIDE
+  -CAP_NET_ADMIN
+  -CAP_NET_BIND_SERVICE
+  -CAP_NET_RAW
+  -CAP_SYS_BOOT
+  -CAP_SYS_MODULE
+  -CAP_SYS_PACCT
+  -CAP_SYS_PTRACE
+  -CAP_SYS_RAWIO
+  -CAP_SYS_TIME
+  -CAP_SYS_TTY_CONFIG
+  -CAP_SYSLOG
+  -CAP_WAKE_ALARM
+
+  bind disabled
+  connect disabled
+  socket_family_allow AF_INET
+  socket_family_allow AF_INET6
+}
+
+role nixbld g
+subject / o {
+  # Build users are unable to traverse the file system by default.
+  # Notably, they are unable to inspect the Nix store.
+  / h
+
+  # Build users must be able to write to the temporary files, however.
+  /tmp     rwxcld
+  /var/tmp rwxcld
+
+  # Some builds may wish to use JIT as part of the build (e.g., during
+  # testing).
+  -PAX_MPROTECT
+
+  # Explicitly drop all caps
+  -CAP_ALL
+
+  # Build users can not bind any sockets but can make outgoing inet
+  # connections, to allow for realization of fixed-output derivations.
+  bind disabled
+  connect 0.0.0.0 tcp stream
+  connect 0.0.0.0 udp dgram
+
+  socket_family_allow AF_INET
+  socket_family_allow AF_INET6
+}
