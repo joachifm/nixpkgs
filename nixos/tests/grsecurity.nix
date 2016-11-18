@@ -32,6 +32,20 @@ import ./make-test.nix ({ pkgs, ...} : {
       $machine->succeed("${pkgs.paxtest}/lib/paxtest/mprotstack") =~ /Killed/ or die;
     };
 
+    subtest "tpe", sub {
+      # With Trusted Path Execution, users should fail to execute
+      # binaries under directories writable by other, non-root users
+      $machine->execute("mkdir -m 777 bad");
+      $machine->execute("echo true >bad/badprog; chmod +x bad/badprog");
+      $machine->fail("su - alice -c $PWD/bad/badprog");
+
+      # We do, however, want to allow custom scripts under e.g., ~/bin
+      # by default
+      $machine->execute("mkdir good; chown alice:alice good");
+      $machine->execute("echo true >good/goodprog; chmod +x good/goodprog");
+      $machine->succeed("su - alice -c $PWD/good/goodprog");
+    };
+
     # tcc -run executes run-time generated code and so allows us to test whether
     # paxmark actually works (otherwise, the process should be terminated)
     subtest "tcc", sub {
