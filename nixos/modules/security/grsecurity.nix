@@ -120,6 +120,11 @@ in
     boot.kernel.sysctl = {
       # Read-only under grsecurity
       "kernel.kptr_restrict" = mkForce null;
+      # Running with tpe_restrict_all is sufficient to prevent users
+      # from executing files under directories owned by other non-root
+      # users.  Turning on tpe_invert, however, prevents executing files
+      # under ~/bin, which is too severe for a default config.
+      "kernel.grsecurity.tpe_invert" = mkDefault 0;
     } // optionalAttrs config.nix.useSandbox {
       # chroot(2) restrictions that conflict with sandboxed Nix builds
       "kernel.grsecurity.chroot_caps" = mkForce 0;

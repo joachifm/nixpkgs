@@ -47,8 +47,10 @@ GRKERNSEC_AUDIT_MOUNT y
 GRKERNSEC_AUDIT_PTRACE y
 GRKERNSEC_FORKFAIL y
 
-# Wishlist: support trusted path execution
-GRKERNSEC_TPE n
+# Trusted Path Execution
+GRKERNSEC_TPE y
+GRKERNSEC_TPE_ALL y
+GRKERNSEC_TPE_INVERT y
 
 # Wishlist: enable this, but breaks user initiated module loading
 GRKERNSEC_MODHARDEN n
