@@ -1,0 +1,54 @@
+* Goals
+
+** Ensure integrity of the kernel
+
+** Ensure integrity of the OS runtime
+
+- Logs
+- Time
+- Static OS components
+
+** Protect hosted and user data
+
+- /home
+- /srv
+- /var/lib/<service>
+
+Must be protected even from rogue root process.
+
+** Store privacy
+
+- No process should be allowed to enumerate the Store
+- Ideally, processes should only be permitted access to store paths they
+  already know about
+- Users must be able to read any store path referenced under
+  /run/current-system/sw
+- Users must be able to read any store path referenced by their
+  own user profile
+
+* Policy notes
+
+/dev/kmsg
+  kernel ring buffer
+  may contain sensitive information
+  must be tamper proof
+
+/dev/mem
+  raw access to memory
+
+/dev/port
+  raw access to I/O ports
+
+/proc/modules
+  currently loaded modules (leaks kernel pointers)
+
+/proc/kallsyms
+
+/proc/bus
+  bus specific information
+
+/proc/iomem
+  memory map
+
+/proc/kcore
+  image of physical memory

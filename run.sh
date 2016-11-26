@@ -1,4 +1,4 @@
-#! /bin/sh -e
-nix-build nixos -I nixos-config=./configuration.nix -A vm -o vm
+#! /bin/sh
+set -e -o pipefail
 export QEMU_OPTS="-cpu host -enable-kvm -m 765M"
-exec ./vm/bin/run-nixos-vm "${@}"
+exec $(nix-build --no-out-link nixos -I nixos-config=./configuration.nix -A vm)/bin/run-nixos-vm "${@}"
