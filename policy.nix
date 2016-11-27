@@ -27,23 +27,25 @@ subject / {
   /etc/grsec h
 
   # Protect static boot files
-  /boot h
-  ${config.system.build.kernel} h
-  ${config.system.build.initialRamdisk} h
+  /boot hs
+  ${config.system.build.kernel} hs
+  ${config.system.build.initialRamdisk} hs
+
+  # Limit kernel information leaks
+  /dev/kmem h
   /proc/kallsyms h
   /proc/modules h
   /proc/slabinfo h
   /proc/vmallocinfo h
-  /dev/kmem h
 
-  /dev/port h
   /dev/mem h
-  /proc/kcore h
+  /dev/port h
   /proc/bus h
+  /proc/kcore h
 
   /dev h
-  /dev/zero rw
   /dev/null rw
+  /dev/zero rw
   /dev/urandom r
 
   /dev/tty rw
@@ -91,22 +93,33 @@ subject / {
 
   /var/lib/systemd h
 
-  -CAP_KILL
-  -CAP_LINUX_IMMUTABLE
-  -CAP_MKNOD
-  -CAP_NET_ADMIN
-  -CAP_NET_BIND_SERVICE
-  -CAP_NET_RAW
-  -CAP_SETFCAP
-  -CAP_SETPCAP
-  -CAP_SYSLOG
-  -CAP_SYS_ADMIN
-  -CAP_SYS_BOOT
-  -CAP_SYS_MODULE
-  -CAP_SYS_PTRACE
-  -CAP_SYS_RAWIO
-  -CAP_SYS_TIME
-  -CAP_SYS_TTY_CONFIG
+  -CAP_ALL
+
+  bind disabled
+  connect 0.0.0.0/32:0 dgram stream icmp tcp udp
+}
+
+subject ${pkgs.glibc.bin}/bin/nscd o {
+  / h
+
+  ${config.environment.etc."hosts".source} r
+  ${config.environment.etc."host.conf".source} r
+  /etc/resolv.conf r
+
+  /etc/group r
+  /etc/passwd r
+  /etc/shadow
+
+  /proc r
+  /proc/kcore h
+
+  /nix/store h
+  /nix/store/*/lib/* rx # */
+
+  /run h
+  /run/nscd rwcd
+
+  -CAP_ALL
 }
 
 subject /var/setuid-wrappers/ping o {
@@ -114,6 +127,8 @@ subject /var/setuid-wrappers/ping o {
   /nix/store h
   /nix/store/*/lib/* rx # */
   -CAP_ALL
+  bind disabled
+  connect disabled
 }
 
 subject ${pkgs.iputils}/bin/ping o {
@@ -141,9 +156,10 @@ subject ${pkgs.procps}/bin/ps o {
   ${config.environment.etc."nsswitch.conf".source} r
 
   /dev h
-  /dev/zero rw
   /dev/null rw
+  /dev/zero rw
   /dev/urandom r
+  /dev/tty r
   /dev/tty? r
   /dev/pts r
 
@@ -165,9 +181,10 @@ subject ${config.systemd.package} o {
   /dev
 
   /dev/urandom r
-  /dev/zero rw
   /dev/null rw
+  /dev/zero rw
 
+  /dev/tty rw
   /dev/tty? rw
 
   /dev/grsec h
@@ -177,6 +194,7 @@ subject ${config.systemd.package} o {
   /dev/mem h
 
   /etc r
+  /etc/shadow
   /etc/ssh h
   /etc/tarsnap h
   /etc/shadow
