@@ -3,6 +3,15 @@
 let
   inherit (lib) mkIf mkOption types concatMapStrings;
   cfg = config.security.apparmor;
+
+  runLocalCommand = name: env:
+    pkgs.runCommand name ({
+      allowSubstitutes = false;
+      preferLocalBuild = true;
+    } // env);
+
+  profileDir = pkgs.runLocalCommand "apparmor.d" {} ''
+  '';
 in
 
 {
@@ -17,6 +26,11 @@ in
          type = types.listOf types.path;
          default = [];
          description = "List of files containing AppArmor profiles.";
+       };
+       packages = mkOption {
+         type = types.listOf types.package;
+         default = [];
+         description = "Packages that expose one or more AppArmor profiles";
        };
      };
    };
