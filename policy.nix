@@ -1,4 +1,10 @@
-{ config, pkgs, lib }: pkgs.writeText "policy" ''
+{ config, pkgs, lib }: with lib; pkgs.writeText "policy" ''
+define all_denied {
+  / h
+  -CAP_ALL
+  bind disabled
+  connect disabled
+}
 
 role admin sA
 subject / rkva {
@@ -7,12 +13,57 @@ subject / rkva {
 
 role messagebus u
 subject / {
-  / h
+  $all_denied
+  ${getBin pkgs.dbus}/bin/dbus-daemon x
+}
+
+# role: messagebus
+subject ${getBin pkgs.dbus}/bin/dbus-daemon o {
+  $all_denied
+
+  /proc
+  /proc/[0-9]*/* r # */
+
+  /run/dbus
   /run/systemd/seats
   /run/systemd/users r
+
+  /nix/store h
+  /nix/store/*/lib/*.so* # */
+  # Note: could be even more specific by generating rules for dbus.packages
+  /nix/store/*/etc/dbus-1 r # */
+  /nix/store/*/share/dbus-1 r # */
+}
+
+role nscd u
+subject / {
+  $all_denied
+  ${pkgs.glibc.bin}/bin/nscd x
+}
+
+# role: nscd
+subject ${pkgs.glibc.bin}/bin/nscd o {
+  / h
+
+  ${config.environment.etc."host.conf".source} r
+  /etc/resolv.conf r
+
+  ${config.environment.etc."hosts".source} r
+  /etc/group r
+  /etc/passwd r
+  /etc/shadow
+
+  /proc r
+  /proc/kcore h
+
+  /run h
+  /run/nscd rwcd
+
+  /nix/store h
+  /nix/store/*-nscd.conf r # */
+  /nix/store/*/lib/*.so* rx # */
+
   -CAP_ALL
-  bind disabled
-  connect disabled
 }
 
 role default G
@@ -26,6 +77,10 @@ subject / {
   /dev/grsec h
   /etc/grsec h
 
+  # Protect grsecurity/PaX tunables
+  /proc/sys/kernel/grsecurity h
+  /proc/sys/kernel/pax h
+
   # Protect static boot files
   /boot hs
   ${config.system.build.kernel} hs
@@ -38,23 +93,27 @@ subject / {
   /proc/slabinfo h
   /proc/vmallocinfo h
 
+  # Protect OS runtime
   /dev/mem h
   /dev/port h
   /proc/bus h
   /proc/kcore h
 
   /dev h
+  /dev/full rw
   /dev/null rw
   /dev/zero rw
   /dev/urandom r
 
   /dev/tty rw
-  /dev/tty? rw
+  /dev/console rw
 
-  /proc rw
-  /proc/sys r
+  /proc r
+  /proc/sys/kernel/ngroups_max r
+  /proc/sys/kernel/pid_max r
 
   /sys h
+  /sys/devices/system/cpu r
 
   /etc r
   /etc/shadow
@@ -99,33 +158,10 @@ subject / {
   connect 0.0.0.0/32:0 dgram stream icmp tcp udp
 }
 
-subject ${pkgs.glibc.bin}/bin/nscd o {
-  / h
-
-  ${config.environment.etc."hosts".source} r
-  ${config.environment.etc."host.conf".source} r
-  /etc/resolv.conf r
-
-  /etc/group r
-  /etc/passwd r
-  /etc/shadow
-
-  /proc r
-  /proc/kcore h
-
-  /nix/store h
-  /nix/store/*/lib/* rx # */
-
-  /run h
-  /run/nscd rwcd
-
-  -CAP_ALL
-}
-
 subject /var/setuid-wrappers/ping o {
   / h
   /nix/store h
-  /nix/store/*/lib/* rx # */
+  /nix/store/*/lib/*.so* rx # */
   -CAP_ALL
   bind disabled
   connect disabled
@@ -138,39 +174,121 @@ subject ${pkgs.iputils}/bin/ping o {
   /run/nscd/socket rw
 
   /nix/store h
-  /nix/store/*/lib/* rx # */
+  /nix/store/*/lib/*.so* rx # */
   /nix/store/*/share/* r # */
 
   -CAP_ALL
   +CAP_NET_RAW
 }
 
-subject ${pkgs.procps}/bin/ps o {
+# role: root
+subject ${pkgs.su}/bin/su o {
   / h
 
-  /nix/store h
-  /nix/store/*/lib/* rx # */
-  /nix/store/*/share/* r # */
+  /etc/login.defs r
+  /etc/pam.d r
+
+  /etc/group r
+  /etc/passwd r
+  /etc/shadow r
+
+  /proc h
+  /proc/[0-9]*/loginuid r
+  /proc/[0-9]*/fd rw
+
+  /proc/sys/kernel/ngroups_max r
+  /proc/sys/kernel/pid_max r
 
   /run/nscd/socket rw
-  ${config.environment.etc."nsswitch.conf".source} r
+  /run/systemd/journal/dev-log rw
+  /run/utmp rw
+
+  /nix/store h
+  /nix/store/* rx # */
+
+  -CAP_ALL
+  +CAP_CHOWN
+  +CAP_SETGID
+  +CAP_SETUID
+
+  bind disabled
+  connect disabled
+}
+
+# role: root
+subject ${pkgs.utillinux}/bin/agetty o {
+  / h
 
   /dev h
   /dev/null rw
-  /dev/zero rw
-  /dev/urandom r
-  /dev/tty r
-  /dev/tty? r
-  /dev/pts r
+  /dev/tty? rw
 
-  /proc r
-  /proc/bus h
-  /proc/kcore h
-  /proc/modules h
-  /proc/kallsyms h
-  /sys/devices/system/cpu r
+  /nix/store h
+  /nix/store/* rx # */
+
+  /run h
+  /run/agetty.reload rwcd
+  /run/nscd/socket rw
+
+  /var h
+  /var/log/wtmp w
 
   -CAP_ALL
+  +CAP_CHOWN
+  +CAP_DAC_OVERRIDE
+  +CAP_FSETID
+  +CAP_SYS_ADMIN
+  +CAP_SYS_TTY_CONFIG
+
+  bind disabled
+  connect disabled
+}
+
+# role: root
+subject ${pkgs.shadow}/bin/login o {
+  / h
+
+  /dev h
+  /dev/tty? rw
+
+  /etc h
+  /etc/pam.d r
+  /etc/shadow r
+
+  /nix/store h
+  /nix/store/* rxi # */
+
+  /proc rw
+  /proc/sys r
+  /proc/kcore h
+  /proc/bus h
+  /proc/kallsyms h
+  /proc/modules h
+  /proc/slabinfo h
+  /proc/vmallocinfo h
+
+  /run h
+  /run/dbus h
+  /run/dbus/system_bus_socket rw
+  /run/nscd h
+  /run/nscd/socket rw
+  /run/systemd h
+  /run/systemd/seats
+  /run/systemd/journal/dev-log rw
+  /run/utmp rw
+
+  /var h
+  /var/log/lastlog rw
+  /var/log/wtmp w
+
+  -CAP_ALL
+  +CAP_CHOWN
+  +CAP_FOWNER
+  +CAP_FSETID
+  +CAP_NET_ADMIN
+  +CAP_SETGID
+  +CAP_SETUID
+
   bind disabled
   connect disabled
 }
@@ -181,9 +299,11 @@ subject ${config.systemd.package} o {
   /dev
 
   /dev/urandom r
+  /dev/full rw
   /dev/null rw
   /dev/zero rw
 
+  /dev/console rw
   /dev/tty rw
   /dev/tty? rw
 
@@ -197,7 +317,6 @@ subject ${config.systemd.package} o {
   /etc/shadow
   /etc/ssh h
   /etc/tarsnap h
-  /etc/shadow
 
   /proc rw
   /proc/kcore h
@@ -216,7 +335,9 @@ subject ${config.systemd.package} o {
   /var/log/lastlog rw
   /var/log/wtmp rw
 
-  /nix/store rx
+  /nix/store h
+  /nix/store/* rx # */
+
   /run/setuid-wrapper-dirs rx
 
   -CAP_ALL
@@ -232,54 +353,4 @@ subject ${config.systemd.package} o {
   +CAP_SYS_TTY_CONFIG
   +CAP_WAKE_ALARM
 }
-
-subject ${pkgs.utillinux}/bin/agetty o {
-  / h
-  -CAP_ALL
-  bind disabled
-  connect disabled
-}
-
-subject ${pkgs.shadow}/bin/login o {
-  / h
-  -CAP_ALL
-  bind disabled
-  connect disabled
-}
-
-subject ${config.nix.package}/bin/nix-daemon o {
-  / h
-
-  /etc/nix r
-
-  /dev
-  /dev/mem h
-  /dev/port h
-
-  /proc r
-  /proc/kcore h
-
-  /sys r
-
-  /nix/var/nix rwcdl
-  /nix/store rwcdl
-
-  /nix/store/*/bin rx # */
-  /nix/store/*/lib rx # */
-
-  /dev/shm rwcdl
-  /tmp rwcdl
-  /var/tmp rwcdl
-
-  -CAP_ALL
-}
-
-role nixbld g
-subject / {
-  / h
-  -CAP_ALL
-  bind disabled
-  connect disabled
-}
-
 ''

@@ -1,5 +1,4 @@
 * Goals
-
 ** Ensure integrity of the kernel
 
 ** Ensure integrity of the OS runtime
@@ -18,17 +17,30 @@ Must be protected even from rogue root process.
 
 ** Store privacy
 
-- No process should be allowed to enumerate the Store
-- Ideally, processes should only be permitted access to store paths they
-  already know about
-- Users must be able to read any store path referenced under
+- Strong Store privacy: process should be restricted to the subset
+  of the Store required for normal operation, as determined by the
+  administrator.  Too difficult.
+- Weak Store privacy: processes should only be permitted access to store
+  paths they already know about.  This leaves open the possibility of
+  leaking secrets (the adversary simply designs an expression that takes
+  the paths they want to read as inputs and tricks the user into
+  realizing & executing the output), but this requires more effort than
+  merely enumerating the contents of the local store.
+- Usability: Users must be able to read any store path referenced under
   /run/current-system/sw
-- Users must be able to read any store path referenced by their
+- Usability: Users must be able to read any store path referenced by their
   own user profile
 
+* Non-goals
+** Least privilege
 
+A true least privilege policy is attainable only on a per host basis,
+only after extensive full system learning, and even then is going to be
+difficult to "get right" on dynamic configurations.
 
 * Policy notes
+
+** Problematic capabilities
 
 -CAP_KILL
 -CAP_LINUX_IMMUTABLE
@@ -47,27 +59,122 @@ Must be protected even from rogue root process.
 -CAP_SYS_TIME
 -CAP_SYS_TTY_CONFIG
 
-/dev/kmsg
-  kernel ring buffer
-  may contain sensitive information
-  must be tamper proof
+** Problematic paths
 
-/dev/mem
-  raw access to memory
+*** /dev/kmsg
 
-/dev/port
-  raw access to I/O ports
+kernel ring buffer
+may contain sensitive information
+must be tamper proof
 
-/proc/modules
-  currently loaded modules (leaks kernel pointers)
+*** /dev/mem
 
-/proc/kallsyms
+raw access to memory
 
-/proc/bus
-  bus specific information
+*** /dev/port
 
-/proc/iomem
-  memory map
+raw access to I/O ports
 
-/proc/kcore
-  image of physical memory
+*** /proc/modules
+
+currently loaded modules (leaks kernel pointers)
+
+*** /proc/kallsyms
+
+*** /proc/bus
+
+bus specific information
+
+*** /proc/iomem
+
+memory map
+
+*** /proc/kcore
+
+image of physical memory
+
+* Abstractions
+** base
+
+/dev/urandom r
+
+/dev/null rw
+/dev/zero rw
+/dev/full rw
+
+/proc/sys/kernel/version r
+/proc/sys/kernel/ngroups_max r
+
+/proc/meminfo r
+/proc/stat r
+/proc/cpuinfo r
+/sys/devices/system/cpu/online r
+
+/proc/filesystems r
+
+** shm
+
+/dev/shm rwcd
+
+** tmp
+
+/tmp rwcd
+/var/tmp rwcd
+
+** auth
+
+/etc/pam.d r
+/etc/security r
+/etc/shadow r
+
+** audio
+
+/dev/snd/* rw
+/proc/asound rw
+
+# PulseAudio
+/etc/pulse r
+/home/*/.config/pulse rwcd
+/run/user/*/pulse rwcd
+
+** console
+
+# Always refers to the controlling terminal
+/dev/tty rw
+/dev/console rw
+
+# Risky: allows access to all terminals
+/dev/pts rw
+
+** private
+
+/home/*/.*history h
+
+/home/*/.viminfo h
+/home/*/.vimrc h
+
+/home/*/.zshrc h
+/home/*/.zshenv h
+/home/*/.zlogin h
+/home/*/.zlogout h
+
+/home/*/.gnupg h
+/home/*/.ssh h
+
+** user/gnupg
+
+/home/*/.gnupg r
+
+** user/ssh
+
+/home/*/.ssh r
+
+** user/zsh
+
+/home/*/.*zwc rwcd
+/home/*/.zcompdump rwcd
+/home/*/.zlogin r
+/home/*/.zlogout r
+/home/*/.zsh_history rw
+/home/*/.zshenv r
+/home/*/.zshrc r

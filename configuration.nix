@@ -8,6 +8,8 @@ let
 in
 
 {
+  passthru = { inherit grPolicy; };
+
   i18n.consoleKeyMap = "no-latin1";
 
   security.apparmor.enable = false;
@@ -25,8 +27,7 @@ in
   };
 
   environment.systemPackages = with pkgs;
-    [ firefox
-      ncdu
+    [ ncdu
       emacs
       nethack
     ];
@@ -45,7 +46,7 @@ in
     chmod 600 /etc/grsec/learn_config
   '';
 
-  systemd.services.load-rbac-policy = {
+  systemd.services.grlearn = {
     after = [ "multi-user.target" ];
     script = ''
       ${pkgs.gradm}/bin/gradm -FL /var/log/grsec.log
