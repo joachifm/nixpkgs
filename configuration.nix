@@ -3,18 +3,22 @@ with lib;
 
 let
   grPasswd = ./grsec/pw;
-  grPolicy = import ./policy.nix { inherit config lib pkgs; };
   grLearn = import ./learn_config.nix { inherit config lib pkgs; };
+  grPolicyText = import ./policy.nix {
+    inherit config lib pkgs;
+  };
+  grPolicy = pkgs.writeText "policy" grPolicyText;
 in
 
 {
-  passthru = { inherit grPolicy; };
+  passthru = { inherit grPolicyText; };
 
   i18n.consoleKeyMap = "no-latin1";
 
   security.apparmor.enable = false;
   boot.kernelParams = [ "apparmor=0" ];
   security.grsecurity.enable = true;
+  security.hideProcessInformation = true;
 
   users.mutableUsers = false;
 

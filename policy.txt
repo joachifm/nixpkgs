@@ -1,3 +1,5 @@
+# -*- mode: org; -*-
+
 * Goals
 ** Ensure integrity of the kernel
 
@@ -178,3 +180,49 @@ image of physical memory
 /home/*/.zsh_history rw
 /home/*/.zshenv r
 /home/*/.zshrc r
+
+* Achieving store privacy
+
+** Method A
+
+All paths explicit
+
+Pro: true privacy
+Con: too much effort
+
+** Method B
+
+No enumeration, only known paths
+
+#+BEGIN_EXAMPLE
+/nix/store h
+/nix/store/* rx # */
+#+END_EXAMPLE
+
+Pro: close to true privacy
+Pro: little effort
+Con: confuses tools that expect the top of the tree to exist
+(to wit, it makes no sense that /nix/store/foo exists whereas
+/nix/store does not).
+
+** Method C
+
+#+BEGIN_EXAMPLE
+/nix/store
+/nix/store/*/lib/*.so* rx
+/nix/store/*/bin/* x
+/nix/store/*/etc r
+/nix/store/*/share r
+#+END_EXAMPLE
+
+Here we assume that subjects add specific paths to the policy
+(e.g., for keys and such)
+
+Con: assumes that none of the readable paths /etc, /share
+contain sensitive data; a process can easily enumerate the
+Store, looking for interesting information.
+
+** Summary
+
+Method B offers the best compromise between privacy and
+effort, though it may break some tools.
