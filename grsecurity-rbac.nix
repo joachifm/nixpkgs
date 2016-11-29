@@ -2,32 +2,40 @@
 with lib;
 
 let
-  gradmBin = "${lib.getBin pkgs.gradm}/bin/gradm";
+  gradmBin = "${getBin pkgs.gradm}/bin/gradm";
 
   grPasswd = ./grsec/pw;
 
-  grLearn = import ./learn_config.nix {
-    inherit config lib pkgs;
-  };
+  grLearn = import ./learn_config.nix { inherit config lib pkgs; };
 
-  grPolicyText = import ./policy.nix {
-    inherit config lib pkgs;
-  };
+  policyPath = ./policy-v2.nix;
+
+  grPolicyText = import policyPath { inherit config lib pkgs; };
 
   grPolicy = pkgs.writeText "policy" grPolicyText;
 
   enableFullsystemLearning = false;
 
-  enforcePolicy = true;
+  enforcePolicy = false;
 in
 
 {
   config = {
-    security.apparmor.enable = false;
-    boot.kernelParams = [ "apparmor=0" ];
+    assertions =
+      [ { assertion = !(enableFullsystemLearning && enforcePolicy);
+          message = "Learning and enforcement are mutually exclusive";
+        }
+      ];
+
     security.grsecurity.enable = true;
 
+    # Disable other LSMs
+    security.apparmor.enable = false;
+    boot.kernelParams = [ "apparmor=0" ];
+
     system.activationScripts."grsec" = ''
+      rm -rf /etc/grsec
+
       mkdir -pv /etc/grsec
       chmod -c 700 /etc/grsec
 
@@ -43,7 +51,7 @@ in
 
     systemd.services.grlearn = {
       after = [ "multi-user.target" ];
-      wantedBy = optionals enableFullsystemLearning [ "multi-user.target" ];
+      wantedBy = optional enableFullsystemLearning "multi-user.target";
       script = ''
         logfile=/var/log/grsec.log
         d=0
@@ -56,7 +64,7 @@ in
 
     systemd.services.load-grsec-policy = {
       after = [ "multi-user.target" ];
-      wantedBy = optionals (enforcePolicy && !enableFullsystemLearning) [ "multi-user.target" ];
+      wantedBy = optional enforcePolicy "multi-user.target";
       serviceConfig.ExecStart = "${gradmBin} -E";
     };
 

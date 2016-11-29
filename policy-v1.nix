@@ -520,7 +520,6 @@ subject / {
   /nix/store/* rx # */
 
   /nix/var/nix
-  /nix/var/nix/* h # */
   /nix/var/nix/daemon-socket/socket rw
   /nix/var/nix/profiles r
   /nix/var/nix/profiles/per-user rwcdl
@@ -528,9 +527,9 @@ subject / {
   /nix/var/nix/gcroots/tmp rwcdl
   /nix/var/nix/gcroots/per-user rwcdl
   /nix/var/nix/temproots r
-  /nix/var/log h
 
-  /run/setuid-wrapper-dirs rx
+  /run/setuid-wrapper-dirs
+  /run/setuid-wrapper-dirs/*/* rx # */
 
   /home/gray rwcdl
   /home/gray/.gnupg h

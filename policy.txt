@@ -41,25 +41,39 @@ only after extensive full system learning, and even then is going to be
 difficult to "get right" on dynamic configurations.
 
 * Policy notes
-
 ** Problematic capabilities
 
--CAP_KILL
--CAP_LINUX_IMMUTABLE
--CAP_MKNOD
--CAP_NET_ADMIN
--CAP_NET_BIND_SERVICE
--CAP_NET_RAW
--CAP_SETFCAP
--CAP_SETPCAP
--CAP_SYSLOG
--CAP_SYS_ADMIN
--CAP_SYS_BOOT
--CAP_SYS_MODULE
--CAP_SYS_PTRACE
--CAP_SYS_RAWIO
--CAP_SYS_TIME
--CAP_SYS_TTY_CONFIG
+*** CAP_KILL
+
+*** CAP_LINUX_IMMUTABLE
+
+*** CAP_MKNOD
+
+*** CAP_NET_ADMIN
+
+*** CAP_NET_BIND_SERVICE
+
+*** CAP_NET_RAW
+
+*** CAP_SETFCAP
+
+*** CAP_SETPCAP
+
+*** CAP_SYSLOG
+
+*** CAP_SYS_ADMIN
+
+*** CAP_SYS_BOOT
+
+*** CAP_SYS_MODULE
+
+*** CAP_SYS_PTRACE
+
+*** CAP_SYS_RAWIO
+
+*** CAP_SYS_TIME
+
+*** CAP_SYS_TTY_CONFIG
 
 ** Problematic paths
 
