@@ -226,6 +226,67 @@ subject / {
   connect 0.0.0.0/32:0 dgram stream icmp tcp udp
 }
 
+subject ${config.systemd.package} o {
+  /
+
+  /boot hs
+  ${config.system.build.kernel} hs
+  ${config.system.build.initialRamdisk} hs
+
+  /dev/urandom r
+  /dev/full rw
+  /dev/null rw
+  /dev/zero rw
+
+  /dev
+  /dev/console rw
+  /dev/tty rw
+  /dev/tty[0-9]* rw
+
+  /dev/grsec h
+  /etc/grsec h
+
+  /dev/mem h
+  /dev/port h
+
+  /etc r
+  /etc/ssh h
+  /etc/tarsnap h
+
+  /proc rw
+  /proc/kcore h
+  /proc/sys r
+  /sys r
+  /sys/fs/cgroup rwcd
+
+  /run rwcdl
+  /var/lib/systemd rwcd
+  /var/log rwcd
+
+  /nix/store h
+  /nix/store/* rx # */
+
+  /run/setuid-wrapper-dirs rx
+
+  -CAP_ALL
+  +CAP_AUDIT_WRITE
+  +CAP_CHOWN
+  +CAP_DAC_OVERRIDE
+  +CAP_FOWNER
+  +CAP_KILL
+  +CAP_MKNOD
+  +CAP_NET_ADMIN
+  +CAP_SETGID
+  +CAP_SETUID
+  +CAP_SYS_ADMIN
+  +CAP_SYS_CHROOT
+  +CAP_SYS_PTRACE
+  +CAP_SYS_RESOURCE
+  +CAP_SYS_TIME
+  +CAP_SYS_TTY_CONFIG
+  +CAP_WAKE_ALARM
+}
+
 subject /var/setuid-wrappers/ping o {
   / h
   /nix/store h
@@ -254,7 +315,7 @@ subject ${pkgs.su}/bin/su o {
   / h
 
   /dev h
-  /dev/tty?
+  /dev/tty[0-9]*
 
   /home
   /root
@@ -294,7 +355,7 @@ subject ${pkgs.su}/bin/su o {
 
 # role: root
 subject ${pkgs.utillinux}/bin/agetty o {
-  / h
+  /
 
   /dev h
   /dev/null rw
@@ -326,15 +387,18 @@ subject ${pkgs.utillinux}/bin/agetty o {
 subject ${pkgs.shadow}/bin/login o {
   / h
 
+  /root r
+  /home r
+
   /dev h
-  /dev/tty? rw
+  /dev/tty[0-9]* rw
 
   /etc h
   /etc/pam.d r
   /etc/shadow r
 
   /nix/store h
-  /nix/store/* rxi # */
+  /nix/store/* rx # */
 
   /proc rw
   /proc/sys r
@@ -371,75 +435,17 @@ subject ${pkgs.shadow}/bin/login o {
   connect disabled
 }
 
-subject ${config.systemd.package} o {
-  / h
-
-  /dev
-
-  /dev/urandom r
-  /dev/full rw
-  /dev/null rw
-  /dev/zero rw
-
-  /dev/console rw
-  /dev/tty rw
-  /dev/tty? rw
-
-  /dev/grsec h
-  /etc/grsec h
-
-  /dev/port h
-  /dev/mem h
-
-  /etc r
-  /etc/shadow
-  /etc/ssh h
-  /etc/tarsnap h
-
-  /proc rw
-  /proc/kcore h
-  /sys rw
-  /sys/fs/cgroup rwcd
-
-  /run r
-  /run/dbus rw
-  /run/systemd rwcd
-  /run/udev rwcd
-  /run/utmp rw
-
-  /var/lib/systemd rwcd
-  /var/log/journal rwcd
-
-  /var/log/lastlog rw
-  /var/log/wtmp rw
-
-  /nix/store h
-  /nix/store/* rx # */
-
-  /run/setuid-wrapper-dirs rx
-
-  -CAP_ALL
-  +CAP_AUDIT_WRITE
-  +CAP_DAC_OVERRIDE
-  +CAP_KILL
-  +CAP_MKNOD
-  +CAP_NET_ADMIN
-  +CAP_SYS_ADMIN
-  +CAP_SYS_PTRACE
-  +CAP_SYS_RESOURCE
-  +CAP_SYS_TIME
-  +CAP_SYS_TTY_CONFIG
-  +CAP_WAKE_ALARM
-}
-
 role gray u
 subject / {
   /
 
-  /boot h
-  /root h
-  /dev h
+  /boot hs
+  ${config.system.build.kernel} hs
+  ${config.system.build.initialRamdisk} hs
 
+  /root
+
+  /dev h
   /dev/null rw
   /dev/zero rw
   /dev/full rw
@@ -447,14 +453,16 @@ subject / {
 
   /dev/console rw
   /dev/tty rw
-  /dev/tty?
+  /dev/tty[0-9]*
 
   /etc r
   /etc/grsec h
   /etc/ssh h
 
   /etc/nix h
+  /etc/nix/nix.conf r
   /etc/nixos h
+
   /etc/openvpn h
   /etc/samba h
   /etc/tarsnap h
@@ -478,7 +486,7 @@ subject / {
   /proc/meminfo r
   /proc/stat r
   /proc/uptime r
-  /proc/tty r
+  /proc/tty/drivers r
   /proc/sys h
   /proc/sys/kernel/domainname r
   /proc/sys/kernel/hostname r
@@ -510,6 +518,18 @@ subject / {
 
   /nix/store h
   /nix/store/* rx # */
+
+  /nix/var/nix
+  /nix/var/nix/* h # */
+  /nix/var/nix/daemon-socket/socket rw
+  /nix/var/nix/profiles r
+  /nix/var/nix/profiles/per-user rwcdl
+  /nix/var/nix/gcroots r
+  /nix/var/nix/gcroots/tmp rwcdl
+  /nix/var/nix/gcroots/per-user rwcdl
+  /nix/var/nix/temproots r
+  /nix/var/log h
+
   /run/setuid-wrapper-dirs rx
 
   /home/gray rwcdl
