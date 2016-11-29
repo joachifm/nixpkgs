@@ -1,0 +1,323 @@
+* Goals
+
+Augment DAC
+
+Protect kernel from user space
+
+Protect integrity of static OS components
+
+Protect user and hosted data from system services
+
+Broadly:
+- DEFAULT
+  - Limited role for everything else
+- System
+  - Default role for system daemons (regardless of privilege)
+  - Can read (as permitted by DAC) / except /home and /run/user
+  - Can read & write /proc except /proc/kcore, /proc/modules,
+    /proc/slabinfo
+  - Can read /dev except /dev/mem, /dev/kmem, /dev/port
+  - root without the following capabilities
+    - CAP_KILL
+    - CAP_LINUX_IMMUTABLE
+    - CAP_MAC_ADMIN
+    - CAP_MAC_OVERRIDE
+    - CAP_MKNOD
+    - CAP_NET_ADMIN
+    - CAP_NET_BIND_SERVICE
+    - CAP_NET_RAW
+    - CAP_SETFCAP
+    - CAP_SETPCAP
+    - CAP_SYS_ADMIN
+    - CAP_SYS_BOOT
+    - CAP_SYS_MODULE
+    - CAP_SYS_PTRACE
+    - CAP_SYS_RAWIO
+    - CAP_SYS_TIME
+    - CAP_SYSLOG
+  - That is, root cannot create device nodes, modify iptables
+    rules, default routes, modify capabilities, mount filesystems,
+    load modules, ptrace, change system clock, or modify the
+    system log.
+  - Daemons that require additional caps, must transition into
+    a proper role first
+
+- Admin
+  - Extends System with ability to
+    - mount filesystems
+    - create device nodes
+    - set system clock
+
+- User
+
+- Staff
+  - Extends User with the ability to become Admin
+
+* Research notes
+
+** AppArmor wiki: Configuring pam_apparmor
+
+#+BEGIN_QUOTE
+To add pam_apparmor support to a pam enabled application, add a line
+like the following to the pam configuration file for the application
+(usually stored in /etc/pam.d/):
+
+ session  optional       pam_apparmor.so
+
+Likely you will to want add the pam_apparmor module after other session
+management modules. If you make the pam_apparmor module 'required'
+instead of 'optional', the session will abort if pam_apparmor is not
+able to successfully find a hat to change_hat into. Be careful when
+making it required; it is possible to cause all attempted logins to the
+service to fail if the apparmor policy is insufficient.
+
+By default, pam_apparmor will attempt to change_hat into a hat based on
+the primary group name of the user logging in. If that hat fails to
+exist, the module will attempt to change_hat into a hat named DEFAULT
+(it is recommended to ensure this hat exists in the apparmor profiles
+for applications using pam_apparmor).
+
+However, this is configurable by adding an option to the pam
+configuration line to modify what order and what attributes pam_apparmor
+will attempt to use when attempting to change_hat. To do so, add
+'order=' followed by a comma separated list of types of hats to try. The
+type of hats available are:
+
+ * 'user' - the username will be used as the hatname
+ * 'group' - the primary group will be used as the hatname
+ * 'default' - the string 'DEFAULT' will be used as the hatname.
+               Generally, this should be the hat of last resort.
+
+The order in the list determines the order the hat will be
+attempted. Some example configurations:
+
+ # the default behavior
+ session  optional       pam_apparmor.so order=group,default
+
+ # attempt to use only the username
+ session  optional       pam_apparmor.so order=user
+
+ # use the username, followed by the primary groupname, followed by
+ # DEFAULT if the prior hats do not exist in the apparmor profile
+ session  optional       pam_apparmor.so order=user,group,default
+
+You can also add a 'debug' flag to the pam_apparmor session line; this
+will cause the pam module to report more of what it is attempting to do
+to syslog.
+#+END_QUOTE
+
+http://wiki.apparmor.net/index.php/Pam_apparmor
+** AppArmor wiki: example config
+
+http://wiki.apparmor.net/index.php/Pam_apparmor_example
+
+#+BEGIN_QUOTE
+pam_apparmor policy files
+
+In this example, we will break out the pam_apparmor policy into various files to help illustrate the various parts and how they work together. It also serves as a method to make maintaining your policy easier. AppArmor doesn't care if the files are broken apart or in one monolithic file, but we will use the following files in this example:
+
+    /etc/apparmor.d/pam_binaries: policy for binaries with profiles (eg 'su')
+    /etc/apparmor.d/pam_roles: policy for hats referenced in pam/mappings (ie, our 'roles')
+    /etc/apparmor.d/pam/mappings: hats referenced in pam_binaries
+
+In other words, /etc/apparmor.d/pam_binaries contains policy for the
+binaries that are integrated with pam (in this case
+'su'). /etc/apparmor.d/pam_roles contains the policy for the different
+roles at your site, and /etc/apparmor.d/pam/mappings maps login names to
+an AppArmor role.
+
+/etc/apparmor.d/pam_binaries
+
+Create /etc/apparmor.d/pam_binaries to have:
+
+ #
+ # This file contains the policy for the confined binaries that use
+ # libpam-apparmor.
+ #
+
+ #include <tunables/global>
+
+ /bin/su {
+    #include <abstractions/authentication>
+    #include <abstractions/base>
+    #include <abstractions/nameservice>
+
+    # Include the file with all of our username/group to role mappings
+    #include <pam/mappings>
+
+    capability chown,
+    capability setgid,
+    capability setuid,
+
+    owner /etc/environment r,
+    owner /etc/shells r,
+    owner /etc/default/locale r,
+    owner @{HOMEDIRS}/*/.Xauthority rw,
+    owner @{HOMEDIRS}/*/.Xauthority-c w,
+    owner @{HOMEDIRS}/*/.Xauthority-l w,
+    @{HOME}/.xauth* rw,
+    owner @{PROC}/sys/kernel/ngroups_max r,
+    /usr/bin/xauth rix,
+    owner /var/run/utmp rwk,
+ }
+
+/etc/apparmor.d/pam_roles
+
+Now create different roles in /etc/apparmor.d/pam_roles:
+
+ #
+ # This file contains the roles as referenced by pam/mappings
+ #
+
+ #include <tunables/global>
+
+ # By default, allow users to read, lock and link to their own files anywhere,
+ # but only write to files in their home directory. Only allow limited execution
+ # of files.
+ profile default_user {
+    #include <abstractions/base>
+    #include <abstractions/bash>
+    #include <abstractions/consoles>
+    #include <abstractions/nameservice>
+
+    deny capability sys_ptrace,
+
+    owner /** rkl,
+    @{PROC}/** r,
+
+    /bin/**  Pixmr,
+    /usr/bin/** Pixmr,
+    owner @{HOMEDIRS}/ w,
+    owner @{HOMEDIRS}/** w,
+ }
+
+ # Allow confined_users to read, write, lock and link to their own files
+ # anywhere, and execute from some places.
+ profile confined_user {
+    #include <abstractions/base>
+    #include <abstractions/bash>
+    #include <abstractions/consoles>
+    #include <abstractions/nameservice>
+
+    deny capability sys_ptrace,
+
+    owner /** rwkl,
+    @{PROC}/** r,
+
+    /bin/**  Pixmr,
+    /usr/bin/** Pixmr,
+    owner @{HOMEDIRS}/bin/** ixmr,
+ }
+
+/etc/apparmor.d/pam/mappings
+
+Now create /etc/apparmor.d/pam/mappings to map the usernames/groups to roles:
+
+ #
+ # This file contains the mappings from users to roles for the binaries
+ # confined with AppArmor and configured for use with libpam-apparmor. Users
+ # without a mapping will not be able to login.
+ #
+
+ # The default hat is a confined user. The hat contains only the permissions
+ # necessary to transition to the user's login shell. All other permissions have
+ # been moved into the default_user profile.
+ ^DEFAULT {
+   #include <abstractions/authentication>
+   #include <abstractions/nameservice>
+
+   capability dac_override,
+   capability setgid,
+   capability setuid,
+
+   /etc/default/su r,
+   /etc/environment r,
+   @{HOMEDIRS}/.xauth* w,
+
+   /bin/{,b,d,rb}ash Px -> default_user,
+   /bin/{c,k,tc}sh Px -> default_user,
+ }
+
+ # gray is a confined user. The hat contains only the permissions necessary
+ # to transition to gray's login shell. All other permissions have been
+ # moved into the confined_user profile.
+ ^gray {
+   #include <abstractions/authentication>
+   #include <abstractions/nameservice>
+
+   capability dac_override,
+   capability setgid,
+   capability setuid,
+
+   /etc/default/su r,
+   /etc/environment r,
+   @{HOMEDIRS}/.xauth* w,
+
+   /bin/{,b,d,rb}ash Px -> confined_user,
+   /bin/{c,k,tc}sh Px -> confined_user,
+ }
+
+ # Don't confine members whose primary group is 'admin' who are not specifically
+ # confined. Systems without this special primary group may want to define an
+ # unconfined 'root' hat in this manner (depending on site policy).
+ ^admin {
+   #include <abstractions/authentication>
+   #include <abstractions/nameservice>
+
+   capability dac_override,
+   capability setgid,
+   capability setuid,
+
+   /etc/default/su r,
+   /etc/environment r,
+   @{HOMEDIRS}/.xauth* w,
+
+   /bin/{,b,d,rb}ash Ux,
+   /bin/{c,k,tc}sh Ux,
+ }
+
+Applying the policy
+
+After adjusting policy, you must reload the profiles and roles (the mappings are pulled in automatically):
+
+ $ sudo apparmor_parser -r -T -W /etc/apparmor.d/pam_binaries /etc/apparmor.d/pam_roles
+
+See if they were loaded:
+
+ $ sudo aa-status
+ ...
+ 17 profiles are in enforce mode.
+    /bin/su
+    /bin/su//admin
+    /bin/su//gray
+ ...
+    confined_user
+ ...
+
+You may of course update /etc/apparmor.d/pam_binaries and /etc/apparmor.d/pam_roles individually. Changes to /etc/apparmor.d/pam/mappings require you to reload /etc/apparmor.d/pam_binaries (because it has the mappings file as an #include).
+Extending
+
+Once you are comfortable with your 'su' configuration, you can extend this to other binaries like sshd and login by:
+
+    adding a 'session optional pam_apparmor.so ...' entry to the corresponding pam configuration
+    adding policy for the binary to /etc/apparmor.d/pam_binaries
+
+To add a new user or role:
+
+    adjust /etc/apparmor.d/pam_roles for the new role
+    adjust /etc/apparmor.d/pam/mappings to map the login name to the AppArmor role
+
+Caveats
+
+pam_apparmor does not consult secondary groups, so using role groups is
+currently limited to primary groups only.
+
+Final thoughts
+
+Much of /etc/apparmor.d/pam/mappings is boiler plate and can be
+abstracted out and then added via an #include. Also remember that there
+is nothing special about the pam_binaries, pam_roles and pam/mappings
+files. You can use other names or include all of the policy in one
+file. For ease of understanding and maintenance on larger sites,
+breaking the policy up into smaller chunks in this way can help a lot.
+#+END_QUOTE
