@@ -21,14 +21,19 @@ role nscd u
     / h
 
     /etc
+    /etc/resolv.conf r
     /etc/passwd r
     /etc/group r
     /etc/shadow
 
+    /run
     /run/nscd rwcd
 
-    /var/run
+    /run/systemd/journal/dev-log rw
+
+    /var
     /var/db/nscd rwcd
+    /var/run/nscd rwcd
 
     /proc
     /proc/[0-9]*/maps r
@@ -38,8 +43,14 @@ role nscd u
     /nix/store/* rx # */
 
     -CAP_ALL
+
     bind disabled
-    connect disabled
+    ${if (length config.networking.nameservers > 0)
+      then concatMapStringsSep "\n" (x: "connect ${x}/32:53 dgram udp")
+             config.networking.nameservers
+      else "connect disabled"}
+
+    sock_allow_family unix ipv4 ipv6
 
 role messagebus u
   subject /
@@ -185,6 +196,8 @@ role default G
     -CAP_SYS_RAWIO
     -CAP_SYS_TTY_CONFIG
 
+    sock_allow_family unix ipv4 ipv6
+
   # TODO: limit this!
   subject ${config.systemd.package}/lib/systemd/systemd dpo
     / rwcdx
@@ -204,14 +217,29 @@ role default G
     /run/systemd/journal rwcd
     /run/systemd/journal/dev-log rw
 
+    /proc
+    /proc/[0-9]* r
+
     /var/log h
     /var/log/journal rwcd
 
     /nix/store h
     /nix/store/* # */
 
+    # Grant capabilities declared by upstream service unit
     -CAP_ALL
+    +CAP_SYS_ADMIN
+    +CAP_DAC_OVERRIDE
+    +CAP_SYS_PTRACE
     +CAP_SYSLOG
+    +CAP_AUDIT_CONTROL
+    +CAP_AUDIT_READ
+    +CAP_CHOWN
+    +CAP_DAC_READ_SEARCH
+    +CAP_FOWNER
+    +CAP_SETUID
+    +CAP_SETGID
+    +CAP_MAC_OVERRIDE
 
     bind disabled
     connect disabled
@@ -251,21 +279,55 @@ role default G
     # TODO: why?
     +CAP_NET_ADMIN
 
+    bind disabled
+    connect disabled
+    sock_allow_family netlink
+
   subject ${config.systemd.package}/lib/systemd/systemd-logind dpo
     / h
+
+    /dev
+    /dev/tty[0-9]* rw
+
+    /proc
+    /proc/[0-9]*/cgroup r
+    /proc/[0-9]*/sessionid r
+    /proc/kcore h
+    /proc/modules h
+    /proc/kallsyms h
+    /proc/slabinfo h
+
+    /sys
+    # TODO: restrict to uevent
+    /sys/devices r
 
     /root
     /home
 
+    /run/udev
+    /run/udev/*/uacess r # */
+    /run/udev/data r
+
     /run/systemd
     /run/systemd/notify rw
+    /run/systemd/seats rwcd
+    /run/systemd/sessions rwcd
+    /run/systemd/users rwcd
 
     /nix/store h
     /nix/store/* # */
 
+    # Grant capabilities declared by upstream service unit
     -CAP_ALL
-    # reason: needs to mount tmpfs on /run/user/uid
     +CAP_SYS_ADMIN
+    +CAP_MAC_ADMIN
+    +CAP_AUDIT_CONTROL
+    +CAP_CHOWN
+    +CAP_KILL
+    +CAP_DAC_READ_SEARCH
+    +CAP_DAC_OVERRIDE
+    +CAP_FOWNER
+    +CAP_SYS_TTY_CONFIG
 
     bind disabled
     connect disabled
@@ -276,7 +338,26 @@ role default G
     /run/systemd
     /run/systemd/notify rw
 
+    # Grant capabilities declared by upstream service unit
     -CAP_ALL
+    +CAP_SYS_TIME
+    +CAP_SETUID
+    +CAP_SETGID
+    +CAP_SETPCAP
+    +CAP_CHOWN
+    +CAP_DAC_OVERRIDE
+    +CAP_FOWNER
+
+    bind disabled
+    connect 0.0.0.0/32:123 stream dgram tcp udp
+
+  subject ${config.systemd.package}/lib/systemd/systemd-timedated dpo
+    / h
+
+    # Grant capabilities declared by upstream service unit
+    -CAP_ALL
+    +CAP_SYS_TIME
+
     bind disabled
     connect disabled
 
@@ -286,7 +367,19 @@ role default G
     /run/systemd
     /run/systemd/notify rw
 
+    # Grant capabilities declared by upstream service unit
     -CAP_ALL
+    +CAP_NET_ADMIN
+    +CAP_NET_BIND_SERVICE
+    +CAP_NET_BROADCAST
+    +CAP_NET_RAW
+    +CAP_SETUID
+    +CAP_SETGID
+    +CAP_SETPCAP
+    +CAP_CHOWN
+    +CAP_DAC_OVERRIDE
+    +CAP_FOWNER
+
     bind disabled
     connect disabled
 
@@ -296,7 +389,17 @@ role default G
     /run/systemd
     /run/systemd/notify rw
 
+    # Grant capabilities declared by upstream service unit
     -CAP_ALL
+    +CAP_SETUID
+    +CAP_SETGID
+    +CAP_SETPCAP
+    +CAP_CHOWN
+    +CAP_DAC_OVERRIDE
+    +CAP_FOWNER
+    +CAP_NET_RAW
+    +CAP_NET_BIND_SERVICE
+
     bind disabled
     connect disabled
 
@@ -368,8 +471,9 @@ role default G
     /root r
     /home r
 
-    /dev h
+    /dev
     /dev/tty[0-9]* rw
+    /dev/pts
 
     /etc h
     /etc/pam.d r
@@ -380,6 +484,7 @@ role default G
 
     /proc h
     /proc/self
+    /proc/[0-9]*/fd r
     /proc/[0-9]*/loginuid rw
     /proc/[0-9]*/uid_map r
     /proc/[0-9]*/gid_map r
@@ -416,6 +521,9 @@ role default G
     /dev/null rw
     /dev/tty[0-9]* rw
 
+    /etc/group r
+    /etc/passwd r
+
     /run h
     /run/agetty.reload rwcd
     /run/nscd/socket rw
@@ -439,6 +547,18 @@ role default G
 
   subject ${config.nix.package}/bin/nix-daemon dpo
     / h
+    -CAP_ALL
+    bind disabled
+    connect disabled
+
+role nixbld g
+  subject /
+    / h
+
+    # Avoid having to patch builds that fail due to PaX violations
+    -PAX_MPROTECT
+    -PAX_RANDMMAP
+
     -CAP_ALL
     bind disabled
     connect disabled

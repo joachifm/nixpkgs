@@ -4,6 +4,8 @@ with lib;
 {
   imports = [ ./grsecurity-rbac.nix ];
 
+  networking.nameservers = [ "10.0.2.3" ];
+
   i18n.consoleKeyMap = "no-latin1";
 
   security.hideProcessInformation = true;
@@ -17,9 +19,21 @@ with lib;
     group = "wheel";
   };
 
-  environment.systemPackages = with pkgs;
-    [ ncdu
-      emacs
-      nethack
-    ];
+  environment.systemPackages = with pkgs; [
+    clisp
+    curl
+    elinks
+    emacs
+    git
+    gnupg
+    ncdu
+    nethack
+    ntp
+    strace
+    tinycc
+    torbrowser
+    valgrind
+    w3m
+    wget
+  ];
 }
