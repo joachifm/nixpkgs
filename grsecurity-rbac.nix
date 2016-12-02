@@ -14,7 +14,7 @@ let
 
   grPolicy = pkgs.writeText "policy" grPolicyText;
 
-  enableFullsystemLearning = false;
+  enableFullsystemLearning = true;
 
   enforcePolicy = false;
 in

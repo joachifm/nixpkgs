@@ -38,6 +38,7 @@ role nscd u
     /proc
     /proc/[0-9]*/maps r
     /proc/sys/vm/overcommit_memory r
+    /proc/sys/kernel/ngroups_max r
 
     /nix/store h
     /nix/store/* rx # */
@@ -198,14 +199,17 @@ role default G
 
     sock_allow_family unix ipv4 ipv6
 
+  subject ${pkgs.lsof}/bin/lsof {
+    /proc/locks r
+    bind disabled
+    connect disabled
+  }
+
   # TODO: limit this!
   subject ${config.systemd.package}/lib/systemd/systemd dpo
     / rwcdx
-
     +CAP_ALL
-
-    bind disabled
-    connect disabled
+    sock_allow_family unix netlink
 
   subject ${config.systemd.package}/lib/systemd/systemd-journald dpo
     / h
@@ -488,6 +492,7 @@ role default G
     /proc/[0-9]*/loginuid rw
     /proc/[0-9]*/uid_map r
     /proc/[0-9]*/gid_map r
+    /proc/sys/kernel/ngroups_max r
 
     /run h
     /run/dbus h

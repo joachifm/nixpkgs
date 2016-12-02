@@ -19,21 +19,31 @@ with lib;
     group = "wheel";
   };
 
+  services.xserver.enable = true;
+  services.xserver.autorun = false;
+  services.xserver.layout = "no";
+  services.xserver.xkbOptions = "caps:escape";
+
   environment.systemPackages = with pkgs; [
     clisp
+    tinycc
+
     curl
     elinks
     emacs
     git
     gnupg
-    ncdu
     nethack
     ntp
-    strace
-    tinycc
     torbrowser
-    valgrind
     w3m
     wget
+
+    lsof
+    ncdu
+    strace
+
+    gdb
+    valgrind
   ];
 }
