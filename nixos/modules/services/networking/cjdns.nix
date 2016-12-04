@@ -241,7 +241,6 @@ in
         RestartSec = 1;
         CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_RAW CAP_SETUID CAP_SYS_CHROOT";
         ProtectSystem = "full";
-        MemoryDenyWriteExecute = true;
         ProtectHome = true;
         PrivateTmp = true;
       };
