@@ -10,7 +10,7 @@ stdenv.mkDerivation rec {
     sha256 = "1xwkmfaxhhnbmvp37agnby1n53hznwhvx0dg1hj35467qfx985zc";
   };
 
-  buildInputs = [ autoreconfHook ];
+  nativeBuildInputs = [ autoreconfHook ];
 
   patchPhase = ''
     substituteInPlace src/bin/torsocks.in \
