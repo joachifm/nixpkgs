@@ -230,12 +230,11 @@ in
             echo '${cjdrouteConf}' | sed \
                 -e "s/@CJDNS_ADMIN_PASSWORD@/$CJDNS_ADMIN_PASSWORD/g" \
                 -e "s/@CJDNS_PRIVATE_KEY@/$CJDNS_PRIVATE_KEY/g" \
-                | ${pkg}/bin/cjdroute
+                | ${pkg}/bin/cjdroute --nobg
          ''
       );
 
       serviceConfig = {
-        Type = "forking";
         Restart = "always";
         StartLimitInterval = 0;
         RestartSec = 1;
