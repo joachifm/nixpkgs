@@ -15,9 +15,9 @@ stdenv.mkDerivation rec {
   postPatch = ''
     # Patch torify_app()
     sed -i \
-	-e 's,local app_path=`which $1`,local app_path=`type -P $1`,' \
-        -e 's,local getcap=.*,local getcap=${libcap}/bin/getcap,' \
-	src/bin/torsocks.in
+      -e 's,\(local app_path\)=`which $1`,\1=`type -P $1`,' \
+      -e 's,\(local getcap\)=.*,\1=${libcap}/bin/getcap,' \
+      src/bin/torsocks.in
   '';
 
   meta = {
