@@ -11,9 +11,6 @@ stdenv.mkDerivation rec {
   };
 
   buildInputs = [ autoreconfHook ];
-  preConfigure = ''
-      export configureFlags="$configureFlags --libdir=$out/lib"
-  '';
 
   patchPhase = ''
     substituteInPlace src/bin/torsocks.in \
