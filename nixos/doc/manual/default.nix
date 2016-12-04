@@ -45,6 +45,7 @@ let
       exit 1
     fi
     ${libxslt.bin}/bin/xsltproc \
+      --seed-rand 42 \
       --stringparam revision '${revision}' \
       -o $out ${./options-to-docbook.xsl} $optionsXML
   '';
@@ -79,6 +80,7 @@ let
     '';
 
   manualXsltprocOptions = toString [
+    "--seed-rand 42"
     "--param section.autolabel 1"
     "--param section.label.includes.component.label 1"
     "--stringparam html.stylesheet style.css"
@@ -236,7 +238,7 @@ in rec {
 
       # Generate manpages.
       mkdir -p $out/share/man
-      xsltproc --nonet --xinclude \
+      xsltproc --nonet --xinclude --seed-rand 42 \
         --param man.output.in.separate.dir 1 \
         --param man.output.base.dir "'$out/share/man/'" \
         --param man.endnotes.are.numbered 0 \
