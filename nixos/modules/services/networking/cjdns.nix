@@ -243,6 +243,7 @@ in
         ProtectSystem = "full";
         ProtectHome = true;
         PrivateTmp = true;
+        PermissionsStartOnly = true;
       };
     };
 
