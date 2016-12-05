@@ -8,6 +8,8 @@ let
     { config, pkgs, ... }:
     { services.cjdns.enable = true;
 
+      security.apparmor.enable = true;
+
       # Turning off DHCP isn't very realistic but makes
       # the sequence of address assignment less stochastic.
       networking.useDHCP = false;

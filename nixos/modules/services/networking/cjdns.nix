@@ -60,8 +60,15 @@ let
       };
     };
 
-    security = [ { exemptAngel = 1; setuser = "nobody"; } ];
+    # Write log output to stdout rather than the admin socket
+    logging = [ { logTo = "stdout"; } ];
 
+    security =
+         # Drop to nobody but retain ability to setup routes
+         [ { setuser = "nobody"; keepNetAdmin = 1; } ]
+
+         # Needed to set ipv{4,6} addresses on the tun device
+      ++ [ { exemptAngel = 1; } ];
   });
 
 in
@@ -230,19 +237,19 @@ in
             echo '${cjdrouteConf}' | sed \
                 -e "s/@CJDNS_ADMIN_PASSWORD@/$CJDNS_ADMIN_PASSWORD/g" \
                 -e "s/@CJDNS_PRIVATE_KEY@/$CJDNS_PRIVATE_KEY/g" \
-                | ${pkg}/bin/cjdroute --nobg
+                | ${pkg}/bin/cjdroute
          ''
       );
 
       serviceConfig = {
+        Type = "forking";
         Restart = "always";
-        StartLimitInterval = 0;
-        RestartSec = 1;
-        CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_RAW CAP_SETUID CAP_SYS_CHROOT";
-        ProtectSystem = "full";
+
+        CapabilityBoundingSet = "CAP_SETUID CAP_SYS_CHROOT CAP_NET_ADMIN CAP_NET_RAW";
+        ProtectSystem = true;
         ProtectHome = true;
-        PrivateTmp = true;
-        PermissionsStartOnly = true;
+        # preStart may write to /etc
+        PermissionsStartOnly = (cfg.confFile == null);
       };
     };
 
