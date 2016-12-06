@@ -53,6 +53,14 @@ in
       '';
     };
 
+    enableFullSystemLearning = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether to start full system learning.
+      '';
+    };
+
   };
 
   config = mkIf cfg.enable {
@@ -68,6 +76,20 @@ in
 
     # Install rules for the grsec device node
     services.udev.packages = [ pkgs.gradm ];
+
+    systemd.services.grlearn = {
+      description = "grsec RBAC full system learning";
+
+      wantedBy = optional cfg.enableFullSystemLearning "multi-user.target";
+      after = [ "multi-user.target" ];
+
+      script = ''
+        d=0
+        logfile=/var/lib/grsec/learning.logs
+        while [[ -e "$logfile.$d" ]] ; do d=$((d+1)) ; done
+        ${pkgs.gradm}/bin/gradm -FL "$logfile.$d"
+      '';
+    };
 
     # This service unit is responsible for locking the grsecurity tunables.  The
     # unit is always defined, but only activated on bootup if lockTunables is
