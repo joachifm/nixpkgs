@@ -162,9 +162,9 @@ in
       { description = "hostapd wireless AP";
 
         path = [ pkgs.hostapd ];
-        wantedBy = [ "network.target" ];
 
-        after = [ "${cfg.interface}-cfg.service" "nat.service" "bind.service" "dhcpd.service"];
+        wantedBy = [ "multi-user.target" ];
+        after = [ "${cfg.interface}-cfg.service" "nat.service" "bind.service" "dhcpd.service" ];
 
         serviceConfig =
           { ExecStart = "${pkgs.hostapd}/bin/hostapd ${configFile}";
