@@ -14,6 +14,8 @@ import ./make-test.nix ({ pkgs, ...} : {
     };
 
   testScript = ''
+    $machine->waitForUnit("multi-user.target");
+
     subtest "grsec-lock", sub {
       $machine->succeed("systemctl is-active grsec-lock");
       $machine->succeed("grep -Fq 1 /proc/sys/kernel/grsecurity/grsec_lock");
