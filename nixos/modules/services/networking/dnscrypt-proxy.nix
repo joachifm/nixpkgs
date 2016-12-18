@@ -188,7 +188,7 @@ in
         ${getLib pkgs.libgpgerror}/lib/libgpg-error.so.* mr,
         ${getLib pkgs.libcap}/lib/libcap.so.* mr,
         ${getLib pkgs.lz4}/lib/liblz4.so.* mr,
-        ${getLib pkgs.attr}/lib/libattr.so.* mr,
+        ${getLib pkgs.attr}/lib/libattr.so.* mr, # */
 
         ${resolverList} r,
       }
@@ -213,6 +213,7 @@ in
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
+        CapabilityBoundingSet = "CAP_DAC_OVERRIDE CAP_CHOWN";
       };
     };
 
@@ -239,7 +240,10 @@ in
         PrivateTmp = true;
         PrivateDevices = true;
         ProtectHome = true;
-        ProtectSystem = true;
+        ProtectSystem = "full";
+        ReadWritePaths = stateDirectory;
+        SystemCallFilter = "@basic-io @network-io";
+        CapabilityBoundingSet = "CAP_DAC_OVERRIDE";
       };
     };
 
@@ -281,6 +285,9 @@ in
         PrivateTmp = true;
         PrivateDevices = true;
         ProtectHome = true;
+        ProtectSystem = "full";
+
+        SystemCallFilter = "@basic-io @network-io";
       };
     };
   };
