@@ -154,9 +154,14 @@ let
 
   i2pdSh = pkgs.writeScriptBin "i2pd" ''
     #!/bin/sh
-    ${if isNull cfg.extIp then extip else ""}
+    ${if (cfg.extIp != null)
+      then ''EXTIP=${cfg.extIp}''
+      else extip}
+    if [ -z "$EXTIP" ] ; then
+      echo "i2pd: failed to acquire external ip address" >&2
+    fi
     ${pkgs.i2pd}/bin/i2pd \
-      --host=${if isNull cfg.extIp then "$EXTIP" else cfg.extIp} \
+      --host="$EXTIP" \
       --conf=${i2pdConf} \
       --tunconf=${i2pdTunnelConf}
   '';
