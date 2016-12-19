@@ -1,7 +1,5 @@
 { stdenv, fetchFromRepoOrCz, perl, texinfo }:
 
-assert (stdenv.isGlibc);
-
 with stdenv.lib;
 
 let
@@ -35,9 +33,9 @@ stdenv.mkDerivation rec {
 
   preConfigure = ''
     configureFlagsArray+=("--disable-static")
-    configureFlagsArray+=("--sysincludepaths=${stdenv.glibc.dev}/include:{B}/include")
-    configureFlagsArray+=("--crtprefix=${stdenv.glibc.out}/lib")
-    configureFlagsArray+=("--libpaths=${stdenv.glibc.out}/lib")
+    configureFlagsArray+=("--sysincludepaths=${getDev stdenv.cc.libc}/include:{B}/include")
+    configureFlagsArray+=("--crtprefix=${getLib stdenv.cc.libc}/lib")
+    configureFlagsArray+=("--libpaths=${getLib stdenv.cc.libc}/lib")
     configureFlagsArray+=("--elfinterp=$(< $NIX_CC/nix-support/dynamic-linker)")
   '';
 
@@ -75,8 +73,7 @@ stdenv.mkDerivation rec {
     homepage = http://www.tinycc.org/;
     license = licenses.lgpl2Plus;
 
-    #platforms = with platforms; unix;
-    platforms = stdenv.glibc.meta.platforms;
+    platforms = with platforms; unix;
     maintainers = with maintainers; [ joachifm ];
   };
 }
