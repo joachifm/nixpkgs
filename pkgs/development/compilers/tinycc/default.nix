@@ -20,29 +20,29 @@ stdenv.mkDerivation rec {
     inherit sha256;
   };
 
-  outputs = [ "bin" "dev" "out" ];
-
   nativeBuildInputs = [ perl texinfo ];
 
   hardeningDisable = [ "fortify" ];
 
-  postPatch = ''
-    substituteInPlace "texi2pod.pl" \
-      --replace "/usr/bin/perl" "${perl}/bin/perl"
-  '';
-
-  preConfigure = ''
-    configureFlagsArray+=("--elfinterp=$(cat $NIX_CC/nix-support/dynamic-linker)")
-    configureFlagsArray+=("--crtprefix=${stdenv.glibc.out}/lib")
-    configureFlagsArray+=("--sysincludepaths=${stdenv.glibc.dev}/include:{B}/include")
-    configureFlagsArray+=("--libpaths=${stdenv.glibc.out}/lib")
-  '';
+  enableParallelBuilding = true;
 
   doCheck = true;
   checkTarget = "test";
 
+  postPatch = ''
+    sed -i texi2pod.pl -e "s,/usr/bin/perl,${perl}/bin/perl,"
+  '';
+
+  preConfigure = ''
+    configureFlagsArray+=("--disable-static")
+    configureFlagsArray+=("--sysincludepaths=${stdenv.glibc.dev}/include:{B}/include")
+    configureFlagsArray+=("--crtprefix=${stdenv.glibc.out}/lib")
+    configureFlagsArray+=("--libpaths=${stdenv.glibc.out}/lib")
+    configureFlagsArray+=("--elfinterp=$(< $NIX_CC/nix-support/dynamic-linker)")
+  '';
+
   postFixup = ''
-    paxmark m $bin/bin/tcc
+    paxmark m $out/bin/tcc
   '';
 
   meta = {
@@ -75,7 +75,8 @@ stdenv.mkDerivation rec {
     homepage = http://www.tinycc.org/;
     license = licenses.lgpl2Plus;
 
-    platforms = platforms.unix;
-    maintainers = [ maintainers.joachifm ];
+    #platforms = with platforms; unix;
+    platforms = stdenv.glibc.meta.platforms;
+    maintainers = with maintainers; [ joachifm ];
   };
 }
