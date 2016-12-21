@@ -34,6 +34,8 @@ let
     patches =
       [ # Do not look in /usr etc. for dependencies.
         ./no-sys-dirs.patch
+        # Reduce variability in Configuration output
+        ./hardcode-config-values.patch
       ]
       ++ optional stdenv.isSunOS ./ld-shared.patch
       ++ optional stdenv.isDarwin [ ./cpp-precomp.patch ];
@@ -42,6 +44,14 @@ let
       pwd="$(type -P pwd)"
       substituteInPlace dist/PathTools/Cwd.pm \
         --replace "/bin/pwd" "$pwd"
+
+      # Prevent timestamp in perl -V output
+      substituteInPlace perl.c \
+        --replace "#ifdef __DATE__" "#if 0"
+
+      # No date in man pages
+      substituteInPlace cpan/podlators/lib/Pod/Man.pm \
+        --replace 'my $date = $$self{date} || $self->devise_date;' 'my $date = "1970-01-01";'
     '';
     sandboxProfile = sandbox.allow "ipc-sysv-sem";
 
