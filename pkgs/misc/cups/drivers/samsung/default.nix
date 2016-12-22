@@ -59,7 +59,7 @@ in stdenv.mkDerivation rec {
 
     mkdir -p $out/share
     cp -R noarch/share/* $out/share
-    gzip -9 $out/share/ppd/*.ppd
+    gzip -9n $out/share/ppd/*.ppd
     rm -r $out/share/locale/*/*/install.mo
 
     mkdir -p $out/share/cups
