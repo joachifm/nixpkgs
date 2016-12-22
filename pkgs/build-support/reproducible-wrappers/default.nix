@@ -1,27 +1,38 @@
-{ stdenv, writeScriptBin, coreutils, gnutar, gzip }:
+{ stdenv
+, buildEnv
+, writeScriptBin
+, coreutils
+, gnutar
+, gzip
+}:
 
 with stdenv.lib;
 
 let self = { # explicit recursion to avoid cycles
 
-  date = writeScriptBin "date" ''
+  dateWrapper = writeScriptBin "date" ''
     #! ${stdenv.shell}
-    exec ${coreutils}/bin/date -ud@''${SOURCE_DATE_EPOCH:=1}
+    exec -a date ${coreutils}/bin/date -ud@''${SOURCE_DATE_EPOCH:=1}
   '';
 
-  gzip = writeScriptBin "gzip" ''
+  gzipWrapper = writeScriptBin "gzip" ''
     #! ${stdenv.shell}
-    exec ${gzip}/bin/gzip -n "''${@}"
+    exec -a gzip ${gzip}/bin/gzip -n "''${@}"
   '';
 
-  tar = writeScriptBin "tar" ''
+  tarWrapper = with self; writeScriptBin "tar" ''
     #! ${stdenv.shell}
-    PATH=${makeBinPath [ self.gzip self.date ]}''${PATH:+:$PATH}
-    exec ${gnutar}/bin/tar "''${@}" \
+    PATH=${makeBinPath [ gzipWrapper dateWrapper ]}''${PATH:+:$PATH}
+    exec -a tar ${gnutar}/bin/tar "''${@}" \
       --sort=name \
       --mtime="$(date)" \
       --group=0:0 \
       --owner=0:0
   '';
+
+  env = buildEnv {
+    name = "reproducible-wrappers";
+    paths = with self; [ dateWrapper gzipWrapper tarWrapper ];
+  };
 
 }; in self
