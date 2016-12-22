@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, bdftopcf, mkfontdir, mkfontscale }:
+{ stdenv, fetchurl, reproducibleWrappers, bdftopcf, mkfontdir, mkfontscale }:
 
 stdenv.mkDerivation rec {
   name = "dosemu-fonts-${version}";
@@ -8,6 +8,8 @@ stdenv.mkDerivation rec {
     url = "mirror://sourceforge/dosemu/dosemu-${version}.tgz";
     sha256 = "0l1zwmw42mpakjrzmbygshcg2qzq9mv8lx42738rz3j9hrqzg4pw";
   };
+
+  nativeBuildInputs = [ reproducibleWrappers.gzipWrapper ];
 
   buildCommand = ''
     tar xf "$src" --anchored --wildcards '*/etc/*.bdf' '*/etc/dosemu.alias'
