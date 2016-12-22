@@ -32,7 +32,7 @@ stdenv.mkDerivation rec {
     for i in Dina_r700-*.bdf; do
         bdftopcf -t -o DinaBold$(_get_font_size $i).pcf $i
     done
-    gzip *.pcf
+    gzip -9n *.pcf
 
     fontDir="$out/share/fonts/misc"
     mkdir -p "$fontDir"
