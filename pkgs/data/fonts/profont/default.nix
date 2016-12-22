@@ -18,7 +18,7 @@ stdenv.mkDerivation rec {
       cp LICENSE $out/share/doc/$name/LICENSE
 
       for f in *.pcf; do
-        gzip -c "$f" > $out/share/fonts/misc/"$f".gz
+        gzip -c -9n "$f" > $out/share/fonts/misc/"$f".gz
       done
     '';
 
