@@ -19,7 +19,7 @@ stdenv.mkDerivation rec {
     cp bashmount.conf $out/etc
 
     mkdir -p $out/share/man/man1
-    gzip -c -9 bashmount.1 > bashmount.1.gz
+    gzip -c -9n bashmount.1 > bashmount.1.gz
     cp bashmount.1.gz $out/share/man/man1
 
     mkdir -p $out/share/doc/bashmount
