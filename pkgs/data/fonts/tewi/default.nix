@@ -16,7 +16,7 @@ stdenv.mkDerivation rec {
         bdftopcf -o ''${i/bdf/pcf} $i
     done
 
-    gzip *.pcf
+    gzip -9n *.pcf
   '';
 
   installPhase = ''
