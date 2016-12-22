@@ -16,7 +16,7 @@ stdenv.mkDerivation rec {
     for i in */etc/*.bdf; do
       fontOut="$out/share/fonts/X11/misc/dosemu/$(basename "$i" .bdf).pcf.gz"
       echo -n "Installing font $fontOut..." >&2
-      ${bdftopcf}/bin/bdftopcf $i | gzip -c -9 > "$fontOut"
+      ${bdftopcf}/bin/bdftopcf $i | gzip -c -n -9 > "$fontOut"
       echo " done." >&2
     done
     cp */etc/dosemu.alias "$fontPath/fonts.alias"
