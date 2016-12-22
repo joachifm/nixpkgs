@@ -21,7 +21,7 @@ stdenv.mkDerivation {
     mv duply "$out/bin"
     wrapProgram "$out/bin/duply" --set PATH \
         "${coreutils}/bin:${python}/bin:${duplicity}/bin:${gawk}/bin:${gnupg1}/bin:${bash}/bin:${gnugrep}/bin:${txt2man}/bin:${which}/bin"
-    "$out/bin/duply" txt2man | gzip -c > "$out/share/man/man1/duply.1.gz"
+    "$out/bin/duply" txt2man | gzip -9n > "$out/share/man/man1/duply.1.gz"
   '';
 
   meta = with stdenv.lib; {
