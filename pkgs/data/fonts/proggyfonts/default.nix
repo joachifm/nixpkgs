@@ -19,7 +19,7 @@ stdenv.mkDerivation rec {
       cp Licence.txt $out/share/doc/$name/LICENSE
 
       for f in *.pcf; do
-        gzip -c "$f" > $out/share/fonts/misc/"$f".gz
+        gzip -c -9n "$f" > $out/share/fonts/misc/"$f".gz
       done
       cp *.bdf $out/share/fonts/misc
       cp *.ttf $out/share/fonts/truetype
