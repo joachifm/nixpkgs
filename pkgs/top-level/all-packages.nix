@@ -342,6 +342,8 @@ in
 
   iconConvTools = callPackage ../build-support/icon-conv-tools {};
 
+  reproducibleWrappers = callPackage ../build-support/reproducible-wrappers {};
+
 
   ### TOOLS
 
