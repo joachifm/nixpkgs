@@ -15,7 +15,7 @@ stdenv.mkDerivation rec {
     mkdir -p "$out/share/man/man1/"
     sed '1s|/usr/bin/env python|${python}/bin/python|' < txt2tags > "$out/bin/txt2tags"
     chmod +x "$out/bin/txt2tags"
-    gzip - < doc/manpage.man > "$out/share/man/man1/txt2tags.1.gz"
+    gzip -9n - < doc/manpage.man > "$out/share/man/man1/txt2tags.1.gz"
     cp doc/userguide.pdf "$out/share/doc"
     cp -r extras/ samples/ test/ "$out/share"
   '';
