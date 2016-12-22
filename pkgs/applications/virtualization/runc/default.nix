@@ -40,7 +40,7 @@ stdenv.mkDerivation rec {
       for manFile in "$manDir"/*; do
         manName="$(basename "$manFile")" # "docker-build.1"
         mkdir -p "$manRoot/$manBase"
-        gzip -c "$manFile" > "$manRoot/$manBase/$manName.gz"
+        gzip -c -9n "$manFile" > "$manRoot/$manBase/$manName.gz"
       done
     done
   '';
