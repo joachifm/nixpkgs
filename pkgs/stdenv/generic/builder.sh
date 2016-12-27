@@ -12,7 +12,7 @@ real_date=$(type -Pa date | sed 1d)
 if [ -n "$real_date" ]; then
     cat >$out/bin/date <<EOF
 #! $shell
-exec $real_date -d0 "\$@"
+exec $real_date -d${SOURCE_DATE_EPOCH:=1} "\$@"
 EOF
     chmod +x $out/bin/date
     initialPath="$out $initialPath"
