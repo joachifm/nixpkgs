@@ -5,8 +5,9 @@ for i in $initialPath; do
 done
 
 mkdir $out
-mkdir $out/bin
 
+
+mkdir $out/bin
 
 real_date=$(type -P date)
 if [ -n "$real_date" ]; then
@@ -16,6 +17,15 @@ exec $real_date -d${SOURCE_DATE_EPOCH:=1} "\$@"
 EOF
     chmod +x $out/bin/date
     initialPath="$out $initialPath"
+fi
+
+real_gzip=$(type -P gzip)
+if [ -n "$real_gzip" ]; then
+    cat >$out/bin/gzip <<EOF
+#! $shell
+exec $real_gzip -n "\${@}"
+EOF
+    chmod +x $out/bin/gzip
 fi
 
 
