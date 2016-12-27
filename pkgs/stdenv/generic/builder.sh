@@ -8,7 +8,7 @@ mkdir $out
 mkdir $out/bin
 
 
-real_date=$(type -Pa date | sed 1d)
+real_date=$(type -P date)
 if [ -n "$real_date" ]; then
     cat >$out/bin/date <<EOF
 #! $shell
