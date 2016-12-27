@@ -191,6 +191,8 @@ in
         ${getLib pkgs.attr}/lib/libattr.so.* mr,
 
         ${resolverList} r,
+
+        /run/systemd/notify rw,
       }
     '');
 
