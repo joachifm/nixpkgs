@@ -239,7 +239,9 @@ in
         PrivateTmp = true;
         PrivateDevices = true;
         ProtectHome = true;
-        ProtectSystem = true;
+        ProtectSystem = "full";
+        ReadWritePaths = stateDirectory;
+        MemoryDenyWriteExecute = true;
       };
     };
 
@@ -283,6 +285,8 @@ in
         PrivateTmp = true;
         PrivateDevices = true;
         ProtectHome = true;
+        ProtectSystem = "full";
+        MemoryDenyWriteExecute = true;
       };
     };
   };
