@@ -36,11 +36,15 @@ let
         "--resolver-name=${cfg.resolverName}"
       ];
 
+  pluginArgs = map (x: concatStringsSep ","
+    (["--plugin=${x.path}"] ++ x.arguments)) cfg.plugins;
+
   # The final command line arguments passed to the daemon
   daemonArgs =
     [ "--local-address=${localAddress}" ]
     ++ optional cfg.tcpOnly "--tcp-only"
     ++ optional cfg.ephemeralKeys "-E"
+    ++ pluginArgs
     ++ resolverArgs;
 in
 
@@ -76,6 +80,32 @@ in
           assumes that the DNSCrypt proxy should relay DNS queries directly.
           When running as a forwarder for another DNS client, set this option
           to a different value; otherwise leave the default.
+        '';
+      };
+
+      plugins = mkOption {
+        type = types.listOf (types.submodule ({ ... }: { options = {
+          path = mkOption {
+            type = types.path;
+            description = ''
+              The plugin shared object.
+            '';
+            example = literalExample "${pkgs.dnscrypt-proxy}/lib/dnscrypt-proxy/libdcplugin_example_logging.so";
+          };
+
+          arguments = mkOption {
+            type = types.listOf types.str;
+            default = [];
+            example = [ "/var/log/dns.log" ];
+            description = ''
+              A list of command-line arguments passed verbatim to the plugin.
+            '';
+          };
+        }; }));
+        default = [];
+        description = ''
+          Active plugins that can inspect and/or modify requests before
+          they are sent or after a reply has been received.
         '';
       };
 
@@ -190,6 +220,8 @@ in
         ${getLib pkgs.lz4}/lib/liblz4.so.* mr,
         ${getLib pkgs.attr}/lib/libattr.so.* mr,
 
+        ${concatMapStringsSep "\n" (x: "${x.path} mr,") cfg.plugins}
+
         ${resolverList} r,
       }
     '');
@@ -276,7 +308,9 @@ in
       serviceConfig = {
         Type = "simple";
         NonBlocking = "true";
+
         ExecStart = "${dnscrypt-proxy}/bin/dnscrypt-proxy ${toString daemonArgs}";
+        ExecReload = "${pkgs.coreutils}/bin/kill -HUP $MAINPID";
 
         User = "dnscrypt-proxy";
 
