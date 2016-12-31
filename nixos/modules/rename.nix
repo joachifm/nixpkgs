@@ -102,6 +102,9 @@ with lib;
 
     # DNSCrypt-proxy
     (mkRenamedOptionModule [ "services" "dnscrypt-proxy" "port" ] [ "services" "dnscrypt-proxy" "localPort" ])
+    (mkRenamedOptionModule [ "services" "dnscrypt-proxy" "localPort" ] [ "services" "dnscrypt-proxy" "listen" "port" ])
+    (mkRenamedOptionModule [ "services" "dnscrypt-proxy" "customResolver" ] [ "services" "dnscrypt-proxy" "resolver" "custom" ])
+    (mkRenamedOptionModule [ "services" "dnscrypt-proxy" "resolverName" ] [ "services" "dnscrypt-proxy" "resolver" "name" ])
 
     (mkRenamedOptionModule [ "services" "hostapd" "extraCfg" ] [ "services" "hostapd" "extraConfig" ])
 

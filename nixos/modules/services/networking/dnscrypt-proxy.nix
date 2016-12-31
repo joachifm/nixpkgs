@@ -5,6 +5,7 @@ let
   cfg = config.services.dnscrypt-proxy;
 
   stateDirectory = "/var/lib/dnscrypt-proxy";
+  resolversList = "${stateDirectory}/dnscrypt-resolvers.csv";
 
   # The minisign public key used to sign the upstream resolver list.
   # This is somewhat more flexible than preloading the key as an
@@ -15,22 +16,20 @@ let
   };
 
   # Internal flag indicating whether to use the upstream resolver list
-  useUpstreamResolverList = cfg.customResolver == null;
+  useUpstreamResolverList = cfg.resolver.custom == null;
 
   # Build the command-line
-  resolverList = "${stateDirectory}/dnscrypt-resolvers.csv";
+  localAddress = "${cfg.listen.address}:${toString cfg.listen.port}";
 
-  localAddress = "${cfg.localAddress}:${toString cfg.localPort}";
-
-  resolverArgs = if (cfg.customResolver != null)
+  resolverArgs = if (cfg.resolver.custom != null)
     then
-      [ "--resolver-address=${cfg.customResolver.address}:${toString cfg.customResolver.port}"
-        "--provider-name=${cfg.customResolver.name}"
-        "--provider-key=${cfg.customResolver.key}"
+      [ "--resolver-address=${cfg.resolver.custom.address}:${toString cfg.resolver.custom.port}"
+        "--provider-name=${cfg.resolver.custom.name}"
+        "--provider-key=${cfg.resolver.custom.key}"
       ]
     else
-      [ "--resolvers-list=${resolverList}"
-        "--resolver-name=${cfg.resolverName}"
+      [ "--resolvers-list=${resolversList}"
+        "--resolver-name=${cfg.resolver.name}"
       ];
 
   # Final daemon command-line arguments
@@ -56,7 +55,7 @@ in
         '';
       };
 
-      localAddress = mkOption {
+      listen.address = mkOption {
         default = "127.0.0.1";
         type = types.str;
         description = ''
@@ -66,7 +65,7 @@ in
         '';
       };
 
-      localPort = mkOption {
+      listen.port = mkOption {
         default = 53;
         type = types.int;
         description = ''
@@ -77,18 +76,18 @@ in
         '';
       };
 
-      resolverName = mkOption {
+      resolver.name = mkOption {
         default = "dnscrypt.eu-nl";
         type = types.nullOr types.str;
         description = ''
           The name of the upstream DNSCrypt resolver to use, taken from
-          <filename>${resolverList}</filename>.  The default resolver is
+          <filename>${resolversList}</filename>.  The default resolver is
           located in Holland, supports DNS security extensions, and
           <emphasis>claims</emphasis> to not keep logs.
         '';
       };
 
-      customResolver = mkOption {
+      resolver.custom = mkOption {
         default = null;
         description = ''
           Use an unlisted resolver (e.g., a private DNSCrypt provider). For
