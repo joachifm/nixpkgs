@@ -182,7 +182,7 @@ in
 
         ${getLib pkgs.gcc.cc}/lib/libssp.so.* mr,
         ${getLib pkgs.libsodium}/lib/libsodium.so.* mr,
-        ${getLib pkgs.systemd}/lib/libsystemd.so.* mr,
+        ${getLib pkgs.systemd}/lib/libsystemd.so* mr,
         ${getLib pkgs.xz}/lib/liblzma.so.* mr,
         ${getLib pkgs.libgcrypt}/lib/libgcrypt.so.* mr,
         ${getLib pkgs.libgpgerror}/lib/libgpg-error.so.* mr,
