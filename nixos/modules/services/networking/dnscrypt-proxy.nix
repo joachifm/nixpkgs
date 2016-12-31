@@ -52,7 +52,7 @@ in
         default = false;
         type = types.bool;
         description = ''
-          Enable DNSCrypt proxy client daemon.
+          Whether to enable the DNSCrypt proxy client daemon.
         '';
       };
 
@@ -184,6 +184,8 @@ in
         ProtectSystem = "full";
         ReadWritePaths = stateDirectory;
         MemoryDenyWriteExecute = true;
+        RestrictAddressFamilies = "AF_UNIX AF_INET AF_INET6";
+        SystemCallArchitectures = "native";
       };
     };
 
@@ -226,6 +228,8 @@ in
         PrivateDevices = true;
         ProtectHome = true;
         MemoryDenyWriteExecute = true;
+        RestrictAddressFamilies = "AF_UNIX AF_INET AF_INET6";
+        SystemCallArchitectures = "native";
       };
     };
   };
