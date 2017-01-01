@@ -1,3 +1,7 @@
+setDeterministicPythonHashSeed() {
+    export PYTHONHASHSEED=0
+}
+
 addPythonPath() {
     addToSearchPathWithCustomDelimiter : PYTHONPATH $1/lib/python3.6/site-packages
 }
@@ -12,4 +16,4 @@ toPythonPath() {
     echo $result
 }
 
-envHooks+=(addPythonPath)
+envHooks+=(setDeterministicPythonHashSeed addPythonPath)
