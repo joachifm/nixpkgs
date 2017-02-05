@@ -215,13 +215,14 @@ in
 
     # networking.firewall.allowedUDPPorts = ...
 
-    systemd.services.cjdns = {
-      description = "cjdns: routing engine designed for security, scalability, speed and ease of use";
-      wantedBy = [ "multi-user.target" "sleep.target"];
-      after = [ "network-online.target" ];
-      bindsTo = [ "network-online.target" ];
+    systemd.services.init-cjdns-keys = optionalAttrs (cfg.confFile == null) {
+      description = "Initialise keys used by the cjdns routing engine";
 
-      preStart = if cfg.confFile != null then "" else ''
+      wantedBy = [ "cjdns.service" ];
+      after = [ "local-fs.target" ];
+      before = [ "cjdns.service" ];
+
+      script = ''
         [ -e /etc/cjdns.keys ] && source /etc/cjdns.keys
 
         if [ -z "$CJDNS_PRIVATE_KEY" ]; then
@@ -242,7 +243,24 @@ in
         fi
       '';
 
-      script = (
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+
+        ProtectHome = true;
+        ProtectSystem = "strict";
+        ReadWritePaths = "/etc";
+        PrivateNetwork = true;
+      };
+    };
+
+    systemd.services.cjdns = {
+      description = "cjdns: routing engine designed for security, scalability, speed and ease of use";
+      wantedBy = [ "multi-user.target" "sleep.target"];
+      after = [ "network-online.target" ];
+      bindsTo = [ "network-online.target" ];
+
+      script =
         if cfg.confFile != null then "${pkg}/bin/cjdroute < ${cfg.confFile}" else
           ''
             source /etc/cjdns.keys
@@ -250,8 +268,7 @@ in
                 -e "s/@CJDNS_ADMIN_PASSWORD@/$CJDNS_ADMIN_PASSWORD/g" \
                 -e "s/@CJDNS_PRIVATE_KEY@/$CJDNS_PRIVATE_KEY/g" \
                 | ${pkg}/bin/cjdroute
-         ''
-      );
+         '';
 
       serviceConfig = {
         Type = "forking";
@@ -259,7 +276,7 @@ in
         StartLimitInterval = 0;
         RestartSec = 1;
         CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_RAW CAP_SETUID";
-        ProtectSystem = true;
+        ProtectSystem = "strict";
         MemoryDenyWriteExecute = true;
         ProtectHome = true;
         PrivateTmp = true;
