@@ -21,6 +21,8 @@ in
 stdenv.mkDerivation {
   name = "cmucl-binary-${version}";
 
+  preferLocalBuild = true;
+
   buildCommand = ''
     mkdir -p $out
     tar -C $out -xjf ${dist}
