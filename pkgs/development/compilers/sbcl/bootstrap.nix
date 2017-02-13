@@ -41,6 +41,8 @@ stdenv.mkDerivation rec {
   name    = "sbcl-bootstrap-${version}";
   version = cfg.version;
 
+  preferLocalBuild = true;
+
   src = fetchurl {
     url = "mirror://sourceforge/project/sbcl/sbcl/${version}/sbcl-${version}-${cfg.system}-binary.tar.bz2";
     sha256 = cfg.sha256;
