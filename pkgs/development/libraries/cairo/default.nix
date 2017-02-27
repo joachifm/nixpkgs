@@ -17,6 +17,7 @@ stdenv.mkDerivation rec {
   src = fetchurl {
     url = "http://cairographics.org/releases/${name}.tar.xz";
     sha1 = "c6f7b99986f93c9df78653c3e6a3b5043f65145e";
+    sha256 = "082ypjlh03ss5616amgjp9ap3xwwccyh2knyyrj1a4d4x65dkwni";
   };
 
   infinality = fetchFromGitHub {
