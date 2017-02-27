@@ -7,6 +7,7 @@ stdenv.mkDerivation rec {
   src = fetchurl {
     url = "http://www.open-mpi.org/software/hwloc/v1.11/downloads/${name}.tar.bz2";
     sha1 = "3d68de060808f04349538be4e63cde501cd53b0a";
+    sha256 = "1y7c3ysiin0rw0sj6dbxkvjg92j4by36rykvf0vmh91q2rmrn0lc";
   };
 
   # XXX: libX11 is not directly needed, but needed as a propagated dep of Cairo.
