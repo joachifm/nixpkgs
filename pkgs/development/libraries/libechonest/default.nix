@@ -7,6 +7,7 @@ stdenv.mkDerivation rec {
   src = fetchurl {
     url = "http://files.lfranchi.com/${name}.tar.bz2";
     sha1 = "cf1b279c96f15c87c36fdeb23b569a60cdfb01db";
+    sha256 = "0i1bmq3a26p01nvlxqzb37bjbpzdc1mvjadkpwp136xz5ykkp63r";
   };
 
   buildInputs = [ cmake qt4 qjson doxygen boost ];
