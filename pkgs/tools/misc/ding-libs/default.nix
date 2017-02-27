@@ -7,6 +7,7 @@ stdenv.mkDerivation rec {
   src = fetchurl {
     url = "https://fedorahosted.org/released/ding-libs/ding-libs-${version}.tar.gz";
     sha1 = "c8ec86cb93a26e013a13b12a7b0b3fbc1bca16c1";
+    sha256 = "1bczkvq7cblp75kqn6r2d7j5x7brfw6wxirzc6d2rkyb80gj2jkn";
   };
 
   enableParallelBuilding = true;
