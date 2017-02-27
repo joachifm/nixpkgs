@@ -6,6 +6,7 @@ stdenv.mkDerivation {
   src = fetchurl {
     url = "https://www.sqlite.org/2015/sqlite-src-3081001.zip";
     sha1 = "6z7w8y69jxr0xwxbhs8z3zf56zfs5x7z";
+    sha256 = "0ywyljdv89vdfw2bi2hl57kb88pp6hbim7g1km41pacd3i0f5xny";
   };
 
   buildInputs = [ unzip tcl ];
