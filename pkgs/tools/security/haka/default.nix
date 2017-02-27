@@ -11,6 +11,7 @@ stdenv.mkDerivation rec {
 
     # https://github.com/haka-security/haka/releases/download/v${version}/haka_${version}_source.tar.gz.sha1.txt
     sha1 = "87625ed32841cc0b3aa92aa49397ce71ce434bc2";
+    sha256 = "11d418mgynb9ns06kmnq4h1z3dl1m8pqqii3c2n0mhnkaxpmcgxx";
   };
 
   NIX_CFLAGS_COMPILE = "-Wno-error";
