@@ -9,6 +9,7 @@ stdenv.mkDerivation rec {
     repo = "wxsqlite3";
     rev = "v${version}";
     sha1 = "bb8p58g88nkdcsj3h4acx7h925n2cy9g";
+    sha256 = "0hv69gpbvlcbxllsg0zj054zcf64q5vz8f1vbwdra34zh2bbj1l2";
   };
 
   buildInputs = [ wxGTK sqlite ];
