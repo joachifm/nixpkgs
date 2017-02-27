@@ -15,6 +15,7 @@ stdenv.mkDerivation rec {
   src = fetchurl {
     url = "https://fedorahosted.org/released/sssd/${name}.tar.gz";
     sha1 = "167b2216c536035175ff041d0449e0a874c68601";
+    sha256 = "0vbjsz6r81w0d8rigd37dq1x9z8bc2fnp6w8lk0f0f7mrpnn11l6";
   };
 
   # Something is looking for <libxml/foo.h> instead of <libxml2/libxml/foo.h>
