@@ -7,6 +7,7 @@ stdenv.mkDerivation rec {
   src = fetchurl {
     url = "mirror://sourceforge/perfmon2/libpfm4/${name}.tar.gz";
     sha1 = "857eb066724e2a5b723d6802d217c8eddff79082";
+    sha256 = "1d8nsp1apv4iwf24dpxs62v05r1ja699c3ify12xspx0r008j3vb";
   };
 
   installFlags = "DESTDIR=\${out} PREFIX= LDCONFIG=true";
