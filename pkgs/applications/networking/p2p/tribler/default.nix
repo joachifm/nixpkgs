@@ -1,61 +1,68 @@
-{ stdenv, fetchurl, pythonPackages, makeWrapper, nettools, libtorrentRasterbar, imagemagick
-, enablePlayer ? false, vlc ? null }:
+{ stdenv
+, fetchurl
+, makeWrapper
+, python27Packages
+, libtorrentRasterbar
+, libsodium
+, libX11
+, leveldb
+, phonon-backend-vlc
+}:
 
+with stdenv.lib;
+
+let
+  # Packages that are added to PYTHONPATH by a setup hook
+  pythonPath = with python27Packages; [
+    apsw
+    chardet
+    cherrypy
+    configobj
+    cryptography
+    decorator
+    feedparser
+    m2crypto
+    netifaces
+    pillow
+    pyqt5
+    requests
+    twisted
+
+    # Non-pythonPackages packages that provide python libs
+    libtorrentRasterbar
+  ];
+
+  libPath = makeLibraryPath [ leveldb libsodium libX11 libtorrentRasterbar ];
+in
 
 stdenv.mkDerivation rec {
   name = "tribler-${version}";
-  version = "v6.4.3";
+  version = "7.0.0-alpha3";
 
   src = fetchurl {
-    url = "https://github.com/Tribler/tribler/releases/download/${version}/Tribler-${version}.tar.xz";
-    sha256 = "1n5qi3jlby41w60zg6dvl933ypyiflq3rb0qkwhxi4b26s3vwvgr";
+    url = "https://github.com/Tribler/tribler/releases/download/v${version}/Tribler-v${version}.tar.xz";
+    # see https://github.com/Tribler/tribler/releases/download/v${version}/SHA256.txt
+    sha256 = "1ln4y8armd5mjqb77fpsjslq9r0ix92yvcz313ib9hixcgp1s55n";
   };
 
-  buildInputs = [
-    pythonPackages.python
-    pythonPackages.wrapPython
-    makeWrapper
-    imagemagick
-  ];
+  buildInputs = pythonPath;
 
-  pythonPath = [
-    libtorrentRasterbar
-    pythonPackages.wxPython
-    pythonPackages.apsw
-    pythonPackages.twisted
-    pythonPackages.gmpy
-    pythonPackages.netifaces
-    pythonPackages.pillow
-    pythonPackages.pycrypto
-    pythonPackages.pyasn1
-    pythonPackages.requests
-    pythonPackages.setuptools
-    pythonPackages.m2crypto
-  ];
+  buildPhase = ''
+    ${python27Packages.python.interpreter} setup.py build
+  '';
 
-  installPhase =
-    ''
-      find . -name '*.png' -exec convert -strip {} {} \;
-      # Nasty hack; call wrapPythonPrograms to set program_PYTHONPATH.
-      wrapPythonPrograms
+  installPhase = ''
+    ${python27Packages.python.interpreter} setup.py --root=$out --optimize=1
+  '';
 
-      mkdir -p $out/share/tribler
-      cp -prvd Tribler $out/share/tribler/
-
-      makeWrapper ${pythonPackages.python}/bin/python $out/bin/tribler \
-          --set _TRIBLERPATH $out/share/tribler \
-          --set PYTHONPATH $out/share/tribler:$program_PYTHONPATH \
-          --run 'cd $_TRIBLERPATH' \
-          --add-flags "-O $out/share/tribler/Tribler/Main/tribler.py" \
-          ${stdenv.lib.optionalString enablePlayer ''
-            --prefix LD_LIBRARY_PATH : ${vlc}/lib
-          ''}
+  meta = with stdenv.lib; {
+    homepage = https://www.tribler.org/;
+    description = "Anonymous, decentralized P2P filesharing";
+    longDescription = ''
+      Tribler combines Tor-like onion routing with Bittorrent
+      streaming to provide censorship resistant video streaming.
     '';
-
-  meta = {
-    homepage = http://www.tribler.org/;
-    description = "A completely decentralised P2P filesharing client based on the Bittorrent protocol";
-    license = stdenv.lib.licenses.lgpl21;
-    platforms = stdenv.lib.platforms.linux;
+    license = licenses.lgpl21;
+    platforms = platforms.linux;
   };
 }
