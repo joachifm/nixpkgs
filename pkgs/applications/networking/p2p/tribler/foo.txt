@@ -1,0 +1,23 @@
+
+    mkdir -p $out/share/tribler
+    cp -r -t $out/share/tribler \
+      Tribler \
+      TriblerGUI \
+      logger.conf \
+      run_tribler.py
+
+    TRIBBLER_DIR=$out/share/tribler
+    TRIBBLER_RUN=$TRIBBLER_DIR/run_tribler.py
+
+    # A replacement for the tribler.sh run script sans useless
+    # (for our purposes) logic.
+    mkdir -p $out/bin
+    cat >$out/bin/tribler <<EOF
+    #! ${stdenv.shell} -e
+    exec env \
+      LD_LIBRARY_PATH=${libPath} \
+      PYTHONPATH=$TRIBBLER_DIR:$PYTHONPATH \
+      QT_PLUGIN_PATH=${phonon-backend-vlc}/lib/qt5/plugins \
+      ${python27Packages.python.interpreter} $TRIBBLER_RUN "\''${@}"
+    EOF
+    chmod +x $out/bin/tribler
