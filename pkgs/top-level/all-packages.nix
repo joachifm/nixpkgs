@@ -293,6 +293,10 @@ with pkgs;
 
   removeReferencesTo = callPackage ../build-support/remove-references-to/default.nix { };
 
+  removeReferencesToHook = makeSetupHook
+    { substitutions = { inherit removeReferencesTo; }; }
+    ../build-support/remove-references-to/setup-hook.sh;
+
   vmTools = callPackage ../build-support/vm/default.nix { };
 
   releaseTools = callPackage ../build-support/release/default.nix { };
