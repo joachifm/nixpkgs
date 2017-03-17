@@ -43,11 +43,9 @@ in
   config = mkIf cfg.enable {
     systemd.services.irkerd = {
       description = "Internet Relay Chat (IRC) notification daemon";
+      documentation = [ "man:irkerd(8)" "man:irkerhook(1)" "man:irk(1)" ];
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
-      unitConfig = {
-        Documentation = [ "man:irkerd(8)" "man:irkerhook(1)" "man:irk(1)" ];
-      };
       serviceConfig = {
         ExecStart = "${pkgs.irker}/bin/irkerd -H ${cfg.listenAddress} -n ${cfg.nick}";
         User = "irkerd";
