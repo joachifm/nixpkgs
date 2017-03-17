@@ -12,9 +12,10 @@ stdenv.mkDerivation rec {
     sha256 = "1hslwqa0gqsnl3l6hd5hxpn0wlachxd51infifhlwhyhd6iwgx8p";
   };
 
+  nativeBuildInputs = [ pkgconfig xmlto docbook2x ];
+
   buildInputs = [
-    python pkgconfig systemd
-    xmlto docbook2x docbook_xsl docbook_xml_dtd_412
+    python systemd
     # Needed for proxy support I believe, which I haven't tested.
     # Probably needs to be propagated and some wrapPython magic
     # python.pkgs.pysocks
