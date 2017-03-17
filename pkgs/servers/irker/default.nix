@@ -1,11 +1,13 @@
-{ stdenv, fetchgit, python, pkgconfig, systemd
+{ stdenv, fetchFromGitLab, python, pkgconfig, systemd
 , xmlto, docbook2x, docbook_xsl, docbook_xml_dtd_412 }:
 
 stdenv.mkDerivation rec {
   name = "irker-${version}";
   version = "2017-02-12";
-  src = fetchgit {
-    url = "https://gitlab.com/esr/irker.git";
+
+  src = fetchFromGitLab {
+    owner = "esr";
+    repo = "irker";
     rev = "dc0f65a7846a3922338e72d8c6140053fe914b54";
     sha256 = "1hslwqa0gqsnl3l6hd5hxpn0wlachxd51infifhlwhyhd6iwgx8p";
   };
