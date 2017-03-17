@@ -25,11 +25,11 @@ in
       example = "0.0.0.0";
       type = types.str;
       description = ''
-          Specifies the bind address on which the irker daemon listens.
-          The default is localhost.
+        Specifies the bind address on which the irker daemon listens.
+        The default is localhost.
 
-          Irker authors strongly warn about the risks of running this on
-          a publicly accessible interface, so change this with caution.
+        Irker authors strongly warn about the risks of running this on
+        a publicly accessible interface, so change this with caution.
       '';
     };
 
