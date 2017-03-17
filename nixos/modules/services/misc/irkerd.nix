@@ -9,7 +9,7 @@ in
 {
   options.services.irkerd = {
     enable = mkOption {
-      description = "Whether to enable irker service.";
+      description = "Whether to enable irker, an IRC notification daemon.";
       default = false;
       type = types.bool;
     };
