@@ -25,7 +25,7 @@ stdenv.mkDerivation rec {
     export XML_CATALOG_FILES='${docbook_xsl}/xml/xsl/docbook/catalog.xml ${docbook_xml_dtd_412}/xml/dtd/docbook/catalog.xml'
   '';
 
-  patchPhase = ''
+  postPatch = ''
     substituteInPlace Makefile \
       --replace '-o 0 -g 0' "" \
       --replace 'SYSTEMDSYSTEMUNITDIR :=' 'SYSTEMDSYSTEMUNITDIR ?='
