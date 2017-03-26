@@ -129,6 +129,10 @@ stdenv.mkDerivation rec {
     # and torLibPath for accuracy, but this is more convenient ...
     libPath=${libPath}:$TBB_IN_STORE:$TBB_IN_STORE/TorBrowser/Tor
 
+    # Fixup paths to pluggable transports.
+    sed -i TorBrowser/Data/Tor/torrc-defaults \
+        -e "s,./TorBrowser,$TBB_IN_STORE/TorBrowser,g"
+
     # Prepare for autoconfig.
     #
     # See https://developer.mozilla.org/en-US/Firefox/Enterprise_deployment
