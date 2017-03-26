@@ -133,6 +133,12 @@ stdenv.mkDerivation rec {
     sed -i TorBrowser/Data/Tor/torrc-defaults \
         -e "s,./TorBrowser,$TBB_IN_STORE/TorBrowser,g"
 
+    # Fixup obfs transport.  Work around patchelf failing to set
+    # interpreter for pre-compiled Go binaries by invoking the interpreter
+    # directly.
+    sed -i TorBrowser/Data/Tor/torrc-defaults \
+        -e "s|\(ClientTransportPlugin obfs2,obfs3,obfs4,scramblesuit\) exec|\1 exec $interp|" \
+
     # Prepare for autoconfig.
     #
     # See https://developer.mozilla.org/en-US/Firefox/Enterprise_deployment
