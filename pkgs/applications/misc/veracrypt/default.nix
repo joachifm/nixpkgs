@@ -41,7 +41,7 @@ stdenv.mkDerivation rec {
     description = "Free Open-Source filesystem on-the-fly encryption";
     homepage = https://veracrypt.codeplex.com/;
     license = "VeraCrypt License";
-    maintainers = with stdenv.lib.maintainers; [dsferruzza];
-    platforms = stdenv.lib.platforms.linux;
+    maintainers = with maintainers; [ dsferruzza ];
+    platforms = platforms.linux;
   };
 }
