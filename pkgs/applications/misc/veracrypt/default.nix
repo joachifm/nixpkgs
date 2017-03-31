@@ -22,8 +22,8 @@ stdenv.mkDerivation rec {
       cd Vera*/src
     '';
 
-  nativeBuildInputs = [ pkgconfig ];
-  buildInputs = [ fuse devicemapper nasm makeself ]
+  nativeBuildInputs = [ makeself nasm pkgconfig ];
+  buildInputs = [ fuse devicemapper ]
     ++ optional wxGUI wxGTK30;
   makeFlags = optionalString (!wxGUI) "NOGUI=1";
 
