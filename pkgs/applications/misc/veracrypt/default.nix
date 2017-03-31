@@ -2,6 +2,8 @@
   wxGUI ? true
 }:
 
+with stdenv.lib;
+
 stdenv.mkDerivation rec {
   name = "veracrypt-${version}";
   version = "1.19";
