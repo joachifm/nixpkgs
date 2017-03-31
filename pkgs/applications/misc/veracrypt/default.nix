@@ -23,7 +23,8 @@ stdenv.mkDerivation rec {
     '';
 
   nativeBuildInputs = [ pkgconfig ];
-  buildInputs = [ fuse devicemapper wxGTK30 nasm makeself ];
+  buildInputs = [ fuse devicemapper nasm makeself ]
+    ++ optional wxGUI wxGTK30;
   makeFlags = optionalString (!wxGUI) "NOGUI=1";
 
   installPhase =
