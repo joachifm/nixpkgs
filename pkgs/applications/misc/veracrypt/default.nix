@@ -13,12 +13,10 @@ stdenv.mkDerivation rec {
     sha256 = "111xs1zmic82lpn5spn0ca33q0g4za04a2k4cvjwdb7k3vcicq6v";
   };
 
-  # The source archive can't be extracted with "tar xfz"; I don't know why
-  # Using "gunzip" before "tar xf" works though
+  # The source archive appears to be compressed twice ...
   unpackPhase =
     ''
-      gunzip -c $src > src.tar
-      tar xf src.tar
+      gzip -dc $src | tar xz
       cd Vera*/src
     '';
 
