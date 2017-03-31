@@ -34,7 +34,7 @@ stdenv.mkDerivation rec {
       mkdir -p $out/share/$name
       cp License.txt $out/share/$name/LICENSE
       mkdir -p $out/share/applications
-      sed 's/\/usr\/bin\/veracrypt/veracrypt/' Setup/Linux/veracrypt.desktop > $out/share/applications/veracrypt.desktop
+      sed "s,Exec=.*,Exec=$out/bin/veracrypt," Setup/Linux/veracrypt.desktop > $out/share/applications/veracrypt.desktop
     '';
 
   meta = {
