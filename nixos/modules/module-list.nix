@@ -111,6 +111,7 @@
   ./security/ca.nix
   ./security/chromium-suid-sandbox.nix
   ./security/dhparams.nix
+  ./security/disable-kernel-module-autoloading.nix
   ./security/duosec.nix
   ./security/grsecurity.nix
   ./security/hidepid.nix
