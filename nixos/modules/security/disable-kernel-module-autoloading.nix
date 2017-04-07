@@ -8,7 +8,12 @@ with lib;
       type = types.bool;
       default = false;
       description = ''
-        Disable automatic kernel module loading.
+        Disable automatic kernel module loading once the system is fully
+        initialised.  Module loading will be disabled until next reboot.
+        Problems caused by delayed module loading are fixed by adding the
+        module(s) in question to <option>boot.kernelModules</option>.
+        Special care is required if you enable X11 without also
+        configuring it to run automatically on startup.
       '';
     };
   };
@@ -17,9 +22,6 @@ with lib;
     systemd.services.disable-kernel-module-autoloading = rec {
       description = "Disable automatic kernel module loading";
 
-      # Assume that all legitimate module loading has occurred by the time
-      # we're activated.  NOTE: may not hold if X11 is enabled but not
-      # configured to run automatically.
       wantedBy = [ config.systemd.defaultUnit ];
       after = [ "systemd-modules-load.service" ] ++ wantedBy;
 
