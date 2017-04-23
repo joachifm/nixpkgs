@@ -27,6 +27,9 @@ import ./make-test.nix ({ pkgs, ...} : {
       security.sudo = { enable = true; wheelNeedsPassword = false; };
       security.hideProcessInformation = true;
       users.users.alice = { isNormalUser = true; extraGroups = [ "proc" ]; };
+
+      imports = [ ../modules/profiles/hardened.nix ];
+      security.disableKernelModuleAutoloading = true;
     };
 
   testScript =
@@ -125,6 +128,12 @@ import ./make-test.nix ({ pkgs, ...} : {
           $machine->succeed("grep -Fq hidepid=2 /proc/mounts");
           $machine->succeed("[ `su - sybil -c 'pgrep -c -u root'` = 0 ]");
           $machine->succeed("[ `su - alice -c 'pgrep -c -u root'` != 0 ]");
+      };
+
+      # Test kernel module hardening
+      subtest "lock-modules", sub {
+          $machine->waitForUnit("multi-user.target");
+          $machine->fail("modprobe fuse");
       };
     '';
 })
