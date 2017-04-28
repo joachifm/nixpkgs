@@ -8,12 +8,10 @@ with lib;
       type = types.bool;
       default = false;
       description = ''
-        Disable automatic kernel module loading once the system is fully
-        initialised.  Module loading will be disabled until next reboot.
-        Problems caused by delayed module loading are fixed by adding the
-        module(s) in question to <option>boot.kernelModules</option>.
-        Special care is required if you enable X11 without also
-        configuring it to run automatically on startup.
+        Disable kernel module loading once the system is fully initialised.
+        Module loading will be disabled until next reboot.  Problems caused
+        by delayed module loading can be fixed by adding the module(s) in
+        question to <option>boot.kernelModules</option>.
       '';
     };
   };
