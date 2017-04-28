@@ -21,7 +21,7 @@ with lib;
       description = "Disable kernel module loading";
 
       wantedBy = [ config.systemd.defaultUnit ];
-      after = [ "systemd-modules-load.service" ] ++ wantedBy;
+      after = [ "systemd-udev-settle.service" "firewall.service" "systemd-modules-load.service" ] ++ wantedBy;
 
       script = "echo -n 1 > /proc/sys/kernel/modules_disabled";
 
