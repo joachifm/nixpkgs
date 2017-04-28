@@ -18,7 +18,7 @@ with lib;
 
   config = mkIf config.security.disableKernelModuleAutoloading {
     systemd.services.disable-kernel-module-autoloading = rec {
-      description = "Disable automatic kernel module loading";
+      description = "Disable kernel module loading";
 
       wantedBy = [ config.systemd.defaultUnit ];
       after = [ "systemd-modules-load.service" ] ++ wantedBy;
