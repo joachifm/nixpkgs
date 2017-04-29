@@ -6,11 +6,15 @@
 with lib;
 
 {
+  boot.kernelPackages = mkDefault pkgs.linuxPackages_hardened;
+
   security.hideProcessInformation = mkDefault true;
 
   security.apparmor.enable = mkDefault true;
 
   boot.kernelParams = [
+    "page_poison=1"
+
     # Disable legacy virtual syscalls
     "vsyscall=none"
   ];
