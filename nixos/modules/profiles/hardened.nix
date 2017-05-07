@@ -25,6 +25,9 @@ with lib;
     "nohibernate"
   ];
 
+  # Disable 32-bit ABI compatibility, to reduce surface.
+  boot.kernel.sysctl."abi.vsyscall32" = mkDefault false;
+
   # Restrict ptrace() usage to processes with a pre-defined relationship
   # (e.g., parent/child)
   boot.kernel.sysctl."kernel.yama.ptrace_scope" = mkOverride 500 1;
