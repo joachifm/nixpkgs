@@ -32,17 +32,16 @@ edk2 = stdenv.mkDerivation {
     mv -v edksetup.sh $out
   '';
 
-  meta = {
+  meta = with stdenv.lib; {
     description = "Intel EFI development kit";
     homepage = http://www.tianocore.org/edk2/;
-    license = stdenv.lib.licenses.bsd2;
+    license = licenses.bsd2;
     platforms = ["x86_64-linux" "i686-linux"];
   };
 
   passthru = {
     setup = projectDscPath: attrs: {
-      buildInputs = [ pythonEnv ] ++
-        stdenv.lib.optionals (attrs ? buildInputs) attrs.buildInputs;
+      buildInputs = [ pythonEnv ] ++ attrs.buildInputs or [ ];
 
       configurePhase = ''
         mkdir -v Conf
