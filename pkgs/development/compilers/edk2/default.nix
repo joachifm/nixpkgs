@@ -11,15 +11,15 @@ else
   throw "Unsupported architecture";
 
 edk2 = stdenv.mkDerivation {
-  name = "edk2-2014-12-10";
+  name = "edk2-2017-05-18";
 
   src = fetchgit {
     url = git://github.com/tianocore/edk2;
-    rev = "684a565a04";
-    sha256 = "0s9ywb8w7xzlnmm4kwzykxkrdaw53b7pky121cc9wjkllzqwyxrb";
+    rev = "95d0b0a38820fc13d85be4cea2a3588f4f44c3a1";
+    sha256 = "0ayqiqd6m93my49yzcjp72p3602afm6wb8diypsc2m6zwdl3sz59";
   };
 
-  buildInputs = [ libuuid pythonEnv];
+  buildInputs = [ libuuid pythonEnv ];
 
   makeFlags = "-C BaseTools";
 
