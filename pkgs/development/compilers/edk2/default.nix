@@ -48,8 +48,8 @@ edk2 = stdenv.mkDerivation {
         sed -e 's|Nt32Pkg/Nt32Pkg.dsc|${projectDscPath}|' -e \
           's|MYTOOLS|GCC49|' -e 's|IA32|${targetArch}|' -e 's|DEBUG|RELEASE|'\
           < ${edk2}/BaseTools/Conf/target.template > Conf/target.txt
-        sed -e 's|DEFINE GCC48_IA32_PREFIX       = /usr/bin/|DEFINE GCC48_IA32_PREFIX       = ""|' \
-          -e 's|DEFINE GCC48_X64_PREFIX        = /usr/bin/|DEFINE GCC48_X64_PREFIX        = ""|' \
+        sed -e 's|DEFINE GCC49_IA32_PREFIX       = /usr/bin/|DEFINE GCC49_IA32_PREFIX       = ""|' \
+          -e 's|DEFINE GCC49_X64_PREFIX        = /usr/bin/|DEFINE GCC49_X64_PREFIX        = ""|' \
           -e 's|DEFINE UNIX_IASL_BIN           = /usr/bin/iasl|DEFINE UNIX_IASL_BIN           = ${iasl}/bin/iasl|' \
           < ${edk2}/BaseTools/Conf/tools_def.template > Conf/tools_def.txt
         export WORKSPACE="$PWD"
