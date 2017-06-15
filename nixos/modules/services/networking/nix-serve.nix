@@ -19,7 +19,7 @@ in
       };
 
       bindAddress = mkOption {
-        type = types.string;
+        type = types.str;
         default = "0.0.0.0";
         description = ''
           IP address where nix-serve will bind its listening socket.
