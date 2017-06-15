@@ -28,7 +28,7 @@ in
         locker = mkOption {
           default = "xlock"; # default according to `man xautolock`
           example = "i3lock -i /path/to/img";
-          type = types.string;
+          type = types.str;
 
           description = ''
             The script to use when locking the computer.
@@ -46,7 +46,7 @@ in
 
         notifier = mkOption {
           default = "notify-send 'Locking in 10 seconds'";
-          type = types.string;
+          type = types.str;
 
           description = ''
             Notification script to be used to warn about the pending autolock.
