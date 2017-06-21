@@ -314,7 +314,7 @@ let
 
   networkOptions = {
     hostBridge = mkOption {
-      type = types.nullOr types.string;
+      type = types.nullOr types.str;
       default = null;
       example = "br0";
       description = ''
@@ -364,7 +364,7 @@ let
     };
 
     hostAddress6 = mkOption {
-      type = types.nullOr types.string;
+      type = types.nullOr types.str;
       default = null;
       example = "fc00::1";
       description = ''
@@ -386,7 +386,7 @@ let
     };
 
     localAddress6 = mkOption {
-      type = types.nullOr types.string;
+      type = types.nullOr types.str;
       default = null;
       example = "fc00::2";
       description = ''
@@ -506,7 +506,7 @@ in
             };
 
             interfaces = mkOption {
-              type = types.listOf types.string;
+              type = types.listOf types.str;
               default = [];
               example = [ "eth1" "eth2" ];
               description = ''
