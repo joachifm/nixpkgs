@@ -65,7 +65,7 @@ let
       };
 
       acceptInterface = mkOption {
-        type = types.string;
+        type = types.str;
         default = "lo";
         description = ''
           Tell nylon which interface to listen for client requests on, default is "lo".
@@ -73,7 +73,7 @@ let
       };
 
       bindInterface = mkOption {
-        type = types.string;
+        type = types.str;
         default = "enp3s0f0";
         description = ''
           Tell nylon which interface to use as an uplink, default is "enp3s0f0".
