@@ -8,7 +8,7 @@ with lib;
       enable = mkEnableOption "enable toxvpn running on startup";
 
       localip = mkOption {
-        type        = types.string;
+        type        = types.str;
         default     = "10.123.123.1";
         description = "your ip on the vpn";
       };
