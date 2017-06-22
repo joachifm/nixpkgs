@@ -38,7 +38,7 @@ in
       '';
     };
     urlPrefix = mkOption {
-      type = types.string;
+      type = types.str;
       default = "/mantisbt";
       description = "The URL prefix under which the mantisbt service appears.";
     };
