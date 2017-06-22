@@ -140,12 +140,12 @@ in {
     user = mkOption {
       description = "User that runs cassandra service.";
       default = "cassandra";
-      type = types.string;
+      type = types.str;
     };
     group = mkOption {
       description = "Group that runs cassandra service.";
       default = "cassandra";
-      type = types.string;
+      type = types.str;
     };
     envFile = mkOption {
       description = "path to cassandra-env.sh";
@@ -157,17 +157,17 @@ in {
       description = "set cluster name";
       default = "cassandra";
       example = "prod-cluster0";
-      type = types.string;
+      type = types.str;
     };
     commitLogDirectory = mkOption {
       description = "directory for commit logs";
       default = "/var/lib/cassandra/commit_log";
-      type = types.string;
+      type = types.path;
     };
     savedCachesDirectory = mkOption {
       description = "directory for saved caches";
       default = "/var/lib/cassandra/saved_caches";
-      type = types.string;
+      type = types.path;
     };
     hintedHandOff = mkOption {
       description = "enable hinted handoff";
@@ -320,7 +320,7 @@ in {
     };
     repairStartAt = mkOption {
       default = "Sun";
-      type = types.string;
+      type = types.str;
       description = ''
       Defines realtime (i.e. wallclock) timers with calendar event
       expressions. For more details re: systemd OnCalendar at
