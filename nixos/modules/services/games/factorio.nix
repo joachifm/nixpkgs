@@ -55,7 +55,7 @@ in
         '';
       };
       saveName = mkOption {
-        type = types.string;
+        type = types.str;
         default = "default";
         description = ''
           The name of the savegame that will be used by the server.
@@ -93,14 +93,14 @@ in
         '';
       };
       game-name = mkOption {
-        type = types.nullOr types.string;
+        type = types.nullOr types.str;
         default = "Factorio Game";
         description = ''
           Name of the game as it will appear in the game listing.
         '';
       };
       description = mkOption {
-        type = types.nullOr types.string;
+        type = types.nullOr types.str;
         default = "";
         description = ''
           Description of the game that will appear in the listing.
@@ -121,28 +121,28 @@ in
         '';
       };
       username = mkOption {
-        type = types.nullOr types.string;
+        type = types.nullOr types.str;
         default = null;
         description = ''
           Your factorio.com login credentials. Required for games with visibility public.
         '';
       };
       password = mkOption {
-        type = types.nullOr types.string;
+        type = types.nullOr types.str;
         default = null;
         description = ''
           Your factorio.com login credentials. Required for games with visibility public.
         '';
       };
       token = mkOption {
-        type = types.nullOr types.string;
+        type = types.nullOr types.str;
         default = null;
         description = ''
           Authentication token. May be used instead of 'password' above.
         '';
       };
       game-password = mkOption {
-        type = types.nullOr types.string;
+        type = types.nullOr types.str;
         default = null;
         description = ''
           Game password.
