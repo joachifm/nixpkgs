@@ -49,13 +49,13 @@ in
 
       user = mkOption {
         default = "tss";
-        type = types.string;
+        type = types.str;
         description = "User account under which tcsd runs.";
       };
 
       group = mkOption {
         default = "tss";
-        type = types.string;
+        type = types.str;
         description = "Group account under which tcsd runs.";
       };
 
