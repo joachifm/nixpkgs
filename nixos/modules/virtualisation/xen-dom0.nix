@@ -124,7 +124,7 @@ in
 
     virtualisation.xen.domains = {
         extraConfig = mkOption {
-          type = types.string;
+          type = types.lines;
           default = "";
           description =
             ''
