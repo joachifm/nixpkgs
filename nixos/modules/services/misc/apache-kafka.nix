@@ -46,7 +46,7 @@ in {
     hostname = mkOption {
       description = "Hostname the broker should bind to.";
       default = "localhost";
-      type = types.string;
+      type = types.str;
     };
 
     logDirs = mkOption {
@@ -58,7 +58,7 @@ in {
     zookeeper = mkOption {
       description = "Zookeeper connection string";
       default = "localhost:2181";
-      type = types.string;
+      type = types.str;
     };
  
     extraProperties = mkOption {
