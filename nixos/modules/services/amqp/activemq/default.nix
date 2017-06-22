@@ -40,7 +40,7 @@ in {
         '';
       };
       configurationURI = mkOption {
-        type = types.string;
+        type = types.str;
         default = "xbean:activemq.xml";
         description = ''
           The URI that is passed along to the BrokerFactory to
@@ -51,7 +51,7 @@ in {
         '';
       };
       baseDir = mkOption {
-        type = types.string;
+        type = types.path;
         default = "/var/activemq";
         description = ''
           The base directory where ActiveMQ stores its persistent data and logs.
