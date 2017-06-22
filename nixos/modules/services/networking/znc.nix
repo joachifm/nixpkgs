@@ -92,7 +92,7 @@ let
       userName = mkOption {
         default = "";
         example = "johntron";
-        type = types.string;
+        type = types.str;
         description = ''
           A nick identity specific to the IRC server.
         '';
@@ -187,7 +187,7 @@ in
       user = mkOption {
         default = "znc";
         example = "john";
-        type = types.string;
+        type = types.str;
         description = ''
           The name of an existing user account to use to own the ZNC server process.
           If not specified, a default user will be created to own the process.
@@ -197,7 +197,7 @@ in
       group = mkOption {
         default = "";
         example = "users";
-        type = types.string;
+        type = types.str;
         description = ''
           Group to own the ZNCserver process.
         '';
@@ -245,7 +245,7 @@ in
         userName = mkOption {
           default = defaultUserName;
           example = "johntron";
-          type = types.string;
+          type = types.str;
           description = ''
             The user name used to log in to the ZNC web admin interface.
           '';
@@ -270,7 +270,7 @@ in
         nick = mkOption {
           default = "znc-user";
           example = "john";
-          type = types.string;
+          type = types.str;
           description = ''
             The IRC nick.
           '';
@@ -278,7 +278,7 @@ in
 
         passBlock = mkOption {
           example = defaultPassBlock;
-          type = types.string;
+          type = types.str;
           description = ''
             Generate with `nix-shell -p znc --command "znc --makepass"`.
             This is the password used to log in to the ZNC web admin interface.
