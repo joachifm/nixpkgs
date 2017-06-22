@@ -15,7 +15,7 @@ in {
       enable = mkEnableOption "ympd, the MPD Web GUI";
 
       webPort = mkOption {
-        type = types.string;
+        type = types.str;
         default = "8080";
         description = "The port where ympd's web interface will be available.";
         example = "ssl://8080:/path/to/ssl-private-key.pem";
@@ -23,7 +23,7 @@ in {
 
       mpd = {
         host = mkOption {
-          type = types.string;
+          type = types.str;
           default = "localhost";
           description = "The host where MPD is listening.";
           example = "localhost";
