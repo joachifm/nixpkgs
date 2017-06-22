@@ -51,7 +51,7 @@ in
       };
 
       address = mkOption {
-        type = types.string;
+        type = types.str;
         default = "any";
 	description = "Address to bind the hub to.";
       };
@@ -83,7 +83,7 @@ in
             description = "Whether to enable the Sqlite authentication database plugin";
 	  };
           file = mkOption {
-            type = types.string;
+            type = types.path;
             example = "/var/db/uhub-users";
             description = "Path to user database. Use the uhub-passwd utility to create the database and add/remove users.";
           };
@@ -96,7 +96,7 @@ in
             description = "Whether to enable the logging plugin.";
           };
           file = mkOption {
-            type = types.string;
+            type = types.path;
             default = "";
             description = "Path of log file.";
           };
