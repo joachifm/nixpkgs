@@ -15,13 +15,13 @@ in {
     source = mkOption {
       description = "Heapster metric source";
       example = "kubernetes:https://kubernetes.default";
-      type = types.string;
+      type = types.str;
     };
 
     sink = mkOption {
       description = "Heapster metic sink";
       example = "influxdb:http://localhost:8086";
-      type = types.string;
+      type = types.str;
     };
 
     extraOpts = mkOption {
