@@ -16,7 +16,7 @@ in
       };
 
       graylogServer = mkOption {
-        type = types.string;
+        type = types.str;
         example = "graylog2.example.com:11201";
         description = ''
           Host and port of your graylog2 input. This should be a GELF
