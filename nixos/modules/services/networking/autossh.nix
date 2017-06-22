@@ -20,12 +20,12 @@ in
         type = types.listOf (types.submodule {
           options = {
             name = mkOption {
-              type = types.string;
+              type = types.str;
               example = "socks-peer";
               description = "Name of the local AutoSSH session";
             };
             user = mkOption {
-              type = types.string;
+              type = types.str;
               example = "bill";
               description = "Name of the user the AutoSSH session should run as";
             };
