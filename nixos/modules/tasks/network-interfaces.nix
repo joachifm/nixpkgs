@@ -833,7 +833,7 @@ in
         options = {
 
           device = mkOption {
-            type = types.string;
+            type = types.str;
             example = "wlp6s0";
             description = "The name of the underlying hardware WLAN device as assigned by <literal>udev</literal>.";
           };
@@ -849,7 +849,7 @@ in
           };
 
           meshID = mkOption {
-            type = types.nullOr types.string;
+            type = types.nullOr types.str;
             default = null;
             description = "MeshID of interface with type <literal>mesh</literal>.";
           };
