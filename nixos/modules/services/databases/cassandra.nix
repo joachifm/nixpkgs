@@ -338,14 +338,14 @@ in {
     };
     repairPostStop = mkOption {
       default = null;
-      type = types.nullOr types.string;
+      type = types.nullOr types.lines;
       description = ''
       Run a script when repair is over. One can use it to send statsd events, email, etc.
       '';
     };
     repairPostStart = mkOption {
       default = null;
-      type = types.nullOr types.string;
+      type = types.nullOr types.lines;
       description = ''
       Run a script when repair starts. One can use it to send statsd events, email, etc.
       It has same semantics as systemd ExecStopPost; So, if it fails, unit is consisdered
