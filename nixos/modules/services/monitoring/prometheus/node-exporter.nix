@@ -21,7 +21,7 @@ in {
       };
 
       listenAddress = mkOption {
-        type = types.string;
+        type = types.str;
         default = "0.0.0.0";
         description = ''
           Address to listen on.
@@ -29,7 +29,7 @@ in {
       };
 
       enabledCollectors = mkOption {
-        type = types.listOf types.string;
+        type = types.listOf types.str;
         default = [];
         example = ''[ "systemd" ]'';
         description = ''
