@@ -41,7 +41,7 @@ with lib;
                 description = "port to listen on";
               };
               ip = mkOption {
-                type = types.string;
+                type = types.str;
                 default = "*";
                 description = "Ip to listen on. 0.0.0.0 for ipv4 only, * for all.";
               };
