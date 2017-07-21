@@ -18,7 +18,7 @@ in {
       };
 
       listenAddress = mkOption {
-        type = types.string;
+        type = types.str;
         default = "0.0.0.0";
         description = ''
           Address to listen on.
@@ -26,7 +26,7 @@ in {
       };
 
       scrapeUri = mkOption {
-        type = types.string;
+        type = types.str;
         default = "http://localhost/nginx_status";
         description = ''
           Address to access the nginx status page.
