@@ -40,7 +40,7 @@ in
       };
 
       dataDir = mkOption {
-        type = types.string;
+        type = types.path;
         default = "${pkg.dataDir}";
         description = ''
           Data directory for SoftEther VPN.

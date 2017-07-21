@@ -115,7 +115,7 @@ in {
       };
 
       unmanaged = mkOption {
-        type = types.listOf types.string;
+        type = types.listOf types.str;
         default = [];
         description = ''
           List of interfaces that will not be managed by NetworkManager.

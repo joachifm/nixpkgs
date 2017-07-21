@@ -20,6 +20,7 @@ in
       };
       autorun = mkOption {
         default = true;
+        type = types.bool;
         description = ''
           Whether to automatically start the tunnel.
         '';
@@ -27,6 +28,7 @@ in
 
       username = mkOption {
         default = "";
+        type = types.str;
         description = ''
           Your Gateway6 login name, if any.
         '';
@@ -34,7 +36,7 @@ in
 
       password = mkOption {
         default = "";
-        type = types.string;
+        type = types.str;
         description = ''
           Path to a file (as a string), containing your gogoNET password, if any.
         '';
@@ -42,6 +44,7 @@ in
 
       server = mkOption {
         default = "anonymous.freenet6.net";
+        type = types.str;
         example = "broker.freenet6.net";
         description = "The Gateway6 server to be used.";
       };

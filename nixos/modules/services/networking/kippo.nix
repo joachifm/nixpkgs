@@ -26,22 +26,22 @@ rec {
       };
       hostname = mkOption {
         default = "nas3";
-        type = types.string;
+        type = types.str;
         description = ''Hostname for kippo to present to SSH login'';
       };
       varPath = mkOption {
         default = "/var/lib/kippo";
-        type = types.string;
+        type = types.path;
         description = ''Path of read/write files needed for operation and configuration.'';
       };
       logPath = mkOption {
         default = "/var/log/kippo";
-        type = types.string;
+        type = types.path;
         description = ''Path of log files needed for operation and configuration.'';
       };
       pidPath = mkOption {
         default = "/run/kippo";
-        type = types.string;
+        type = types.path;
         description = ''Path of pid files needed for operation.'';
       };
       extraConfig = mkOption {

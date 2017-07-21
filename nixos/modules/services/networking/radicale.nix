@@ -23,7 +23,7 @@ in
     };
 
     services.radicale.config = mkOption {
-      type = types.string;
+      type = types.lines;
       default = "";
       description = ''
         Radicale configuration, this will set the service

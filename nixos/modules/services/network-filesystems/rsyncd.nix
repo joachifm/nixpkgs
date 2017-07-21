@@ -35,7 +35,7 @@ in
       };
 
       motd = mkOption {
-        type = types.string;
+        type = types.lines;
         default = "";
         description = ''
           Message of the day to display to clients on each connect.
