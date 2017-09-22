@@ -14,6 +14,14 @@ with lib;
 
   security.apparmor.enable = mkDefault true;
 
+  systemd.extraConfig = ''
+    SystemCallArchitectures=native
+  '';
+
+  systemd.user.extraConfig = ''
+    SystemCallArchitectures=native
+  '';
+
   boot.kernelParams = [
     # Overwrite free'd memory
     "page_poison=1"
