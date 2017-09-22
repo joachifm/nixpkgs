@@ -27,6 +27,7 @@ import ./make-test.nix ({ pkgs, ...} : {
       security.sudo = { enable = true; wheelNeedsPassword = false; };
       boot.kernel.sysctl."vm.swappiness" = 1;
       boot.kernelParams = [ "vsyscall=emulate" ];
+      imports = [ ../modules/profiles/hardened.nix ];
     };
 
   testScript =

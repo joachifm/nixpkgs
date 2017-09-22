@@ -16,6 +16,7 @@ let
       { imports =
           [ ./hardware-configuration.nix
             <nixpkgs/nixos/modules/testing/test-instrumentation.nix>
+            <nixpkgs/nixos/modules/profiles/hardened.nix
           ];
 
         # To ensure that we can rebuild the grub configuration on the nixos-rebuild
@@ -196,6 +197,7 @@ let
           { imports =
               [ ../modules/profiles/installation-device.nix
                 ../modules/profiles/base.nix
+                ../modules/profiles/hardened.nix
                 extraInstallerConfig
               ];
 
