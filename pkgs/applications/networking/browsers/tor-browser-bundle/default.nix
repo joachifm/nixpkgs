@@ -16,8 +16,6 @@
 
 # Audio support
 , audioSupport ? mediaSupport
-, pulseaudioSupport ? false
-, libpulseaudio
 , apulse
 
 # Media support (implies audio support)
@@ -141,7 +139,7 @@ stdenv.mkDerivation rec {
     lockPref("extensions.torlauncher.socks_port_use_ipc", true);
 
     // Allow sandbox access to sound devices if using ALSA directly
-    ${if (audioSupport && !pulseaudioSupport) then ''
+    ${if audioSupport then ''
       pref("security.sandbox.content.write_path_whitelist", "/dev/snd/");
     '' else ''
       clearPref("security.sandbox.content.write_path_whitelist");
@@ -179,7 +177,7 @@ stdenv.mkDerivation rec {
       shared_mime_info
     ]}
 
-    ${lib.optionalString (audioSupport && !pulseaudioSupport) ''
+    ${lib.optionalString audioSupport ''
       # apulse uses a non-standard library path ...
       wrapper_LD_LIBRARY_PATH=${apulse}/lib/apulse''${wrapper_LD_LIBRARY_PATH:+:$wrapper_LD_LIBRARY_PATH}
     ''}
@@ -216,14 +214,6 @@ stdenv.mkDerivation rec {
     XDG_CACHE_HOME=\$HOME/.cache
     XDG_CONFIG_HOME=\$HOME/.config
     XDG_DATA_HOME=\$HOME/.local/share
-
-    ${lib.optionalString pulseaudioSupport ''
-      # Figure out some envvars for pulseaudio
-      : "\''${XDG_RUNTIME_DIR:=/run/user/\$(id -u)}"
-      : "\''${XDG_CONFIG_HOME:=\$THE_HOME/.config}"
-      : "\''${PULSE_SERVER:=\$XDG_RUNTIME_DIR/pulse/native}"
-      : "\''${PULSE_COOKIE:=\$XDG_CONFIG_HOME/pulse/cookie}"
-    ''}
 
     # Initialize empty TBB runtime state directory hierarchy.  Mirror the
     # layout used by the official TBB, to avoid the hassle of working
@@ -290,13 +280,11 @@ stdenv.mkDerivation rec {
       XDG_CONFIG_HOME="\$XDG_CONFIG_HOME" \
       XDG_DATA_HOME="\$XDG_DATA_HOME" \
       XDG_CACHE_HOME="\$XDG_CACHE_HOME" \
+      XDG_RUNTIME_DIR="\$HOME/run" \
       \
       XDG_DATA_DIRS="$wrapper_XDG_DATA_DIRS" \
       \
       FONTCONFIG_FILE="$TBDATA_IN_STORE/fonts.conf" \
-      \
-      PULSE_SERVER="\''${PULSE_SERVER:-}" \
-      PULSE_COOKIE="\''${PULSE_COOKIE:-}" \
       \
       APULSE_PLAYBACK_DEVICE="\''${APULSE_PLAYBACK_DEVICE:-plug:dmix}" \
       \
