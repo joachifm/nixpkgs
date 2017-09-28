@@ -95,6 +95,7 @@ stdenv.mkDerivation rec {
     lockPref("app.update.enabled", false);
     lockPref("extensions.update.autoUpdateDefault", false);
     lockPref("extensions.update.enabled", false);
+    lockPref("extensions.torbutton.updateNeeded", false);
     lockPref("extensions.torbutton.versioncheck_enabled", false);
 
     // Where to find the Nixpkgs tor executable & config
