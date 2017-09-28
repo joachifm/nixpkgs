@@ -14,6 +14,21 @@
 , noto-fonts
 , noto-fonts-emoji
 
+# Audio support
+, audioSupport ? mediaSupport
+, pulseaudioSupport ? false
+, libpulseaudio
+, apulse
+
+# Media support (implies audio support)
+, mediaSupport ? false
+, gstreamer
+, gst-plugins-base
+, gst-plugins-good
+, gst-ffmpeg
+, gmp
+, ffmpeg
+
 # Extensions, common
 , zip
 
@@ -57,6 +72,21 @@ let
   };
 
   fontsDir = "${fontsEnv}/share/fonts";
+
+  gstPluginsPath = lib.concatMapStringsSep ":" (x:
+    "${x}/lib/gstreamer-0.10") [
+      gstreamer
+      gst-plugins-base
+      gst-plugins-good
+      gst-ffmpeg
+    ];
+
+  gstLibPath = lib.makeLibraryPath [
+    gstreamer
+    gst-plugins-base
+    gmp
+    ffmpeg
+  ];
 in
 stdenv.mkDerivation rec {
   name = "tor-browser-bundle-${version}";
@@ -110,6 +140,13 @@ stdenv.mkDerivation rec {
     lockPref("extensions.torlauncher.control_port_use_ipc", true);
     lockPref("extensions.torlauncher.socks_port_use_ipc", true);
 
+    // Allow sandbox access to sound devices if using ALSA directly
+    ${if (audioSupport && !pulseaudioSupport) then ''
+      pref("security.sandbox.content.write_path_whitelist", "/dev/snd/");
+    '' else ''
+      clearPref("security.sandbox.content.write_path_whitelist");
+    ''}
+
     // User customization
     ${extraPrefs}
     EOF
@@ -142,6 +179,15 @@ stdenv.mkDerivation rec {
       shared_mime_info
     ]}
 
+    ${lib.optionalString (audioSupport && !pulseaudioSupport) ''
+      # apulse uses a non-standard library path ...
+      wrapper_LD_LIBRARY_PATH=${apulse}/lib/apulse''${wrapper_LD_LIBRARY_PATH:+:$wrapper_LD_LIBRARY_PATH}
+    ''}
+
+    ${lib.optionalString mediaSupport ''
+      wrapper_LD_LIBRARY_PATH=${gstLibPath}''${wrapper_LD_LIBRARY_PATH:+:$wrapper_LD_LIBRARY_PATH}
+    ''}
+
     mkdir -p $out/bin
     cat >$out/bin/tor-browser <<EOF
     #! ${stdenv.shell} -eu
@@ -170,6 +216,14 @@ stdenv.mkDerivation rec {
     XDG_CACHE_HOME=\$HOME/.cache
     XDG_CONFIG_HOME=\$HOME/.config
     XDG_DATA_HOME=\$HOME/.local/share
+
+    ${lib.optionalString pulseaudioSupport ''
+      # Figure out some envvars for pulseaudio
+      : "\''${XDG_RUNTIME_DIR:=/run/user/\$(id -u)}"
+      : "\''${XDG_CONFIG_HOME:=\$THE_HOME/.config}"
+      : "\''${PULSE_SERVER:=\$XDG_RUNTIME_DIR/pulse/native}"
+      : "\''${PULSE_COOKIE:=\$XDG_CONFIG_HOME/pulse/cookie}"
+    ''}
 
     # Initialize empty TBB runtime state directory hierarchy.  Mirror the
     # layout used by the official TBB, to avoid the hassle of working
@@ -210,9 +264,21 @@ stdenv.mkDerivation rec {
     # XDG_DATA_DIRS is set to prevent searching system directories for
     # mime and icon data.
     #
+    # PULSE_{SERVER,COOKIE} is necessary for audio playback w/pulseaudio
+    #
+    # APULSE_PLAYBACK_DEVICE is for audio playback w/o pulseaudio (no capture yet)
+    #
+    # GST_PLUGIN_SYSTEM_PATH is for HD video playback
+    #
+    # GST_REGISTRY is set to devnull to minimize disk writes
+    #
+    # TOR_* is for using an external tor instance
+    #
     # Parameters lacking a default value below are *required* (enforced by
     # -o nounset).
     exec env -i \
+      LD_LIBRARY_PATH=$wrapper_LD_LIBRARY_PATH \
+      \
       TZ=":" \
       \
       DISPLAY="\$DISPLAY" \
@@ -228,6 +294,19 @@ stdenv.mkDerivation rec {
       XDG_DATA_DIRS="$wrapper_XDG_DATA_DIRS" \
       \
       FONTCONFIG_FILE="$TBDATA_IN_STORE/fonts.conf" \
+      \
+      PULSE_SERVER="\''${PULSE_SERVER:-}" \
+      PULSE_COOKIE="\''${PULSE_COOKIE:-}" \
+      \
+      APULSE_PLAYBACK_DEVICE="\''${APULSE_PLAYBACK_DEVICE:-plug:dmix}" \
+      \
+      GST_PLUGIN_SYSTEM_PATH="${lib.optionalString mediaSupport gstPluginsPath}" \
+      GST_REGISTRY="/dev/null" \
+      GST_REGISTRY_UPDATE="no" \
+      \
+      TOR_SKIP_LAUNCH="\''${TOR_SKIP_LAUNCH:-}" \
+      TOR_CONTROL_PORT="\''${TOR_CONTROL_PORT:-}" \
+      TOR_SOCKS_PORT="\''${TOR_SOCKS_PORT:-}" \
       \
       $self/firefox \
         -no-remote \
