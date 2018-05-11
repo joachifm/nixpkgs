@@ -45,6 +45,15 @@
 , hicolor-icon-theme
 , shared-mime-info
 
+# Update script
+, writeScript
+, common-updater-scripts
+, bash
+, gnugrep
+, gnused
+, gnupg
+, curl
+
 # Whether to disable multiprocess support to work around crashing tabs
 # TODO: fix the underlying problem instead of this terrible work-around
 , disableContentSandbox ? true
@@ -395,6 +404,12 @@ stdenv.mkDerivation rec {
     DISPLAY="" XAUTHORITY="" DBUS_SESSION_BUS_ADDRESS="" TBB_HOME=$(mktemp -d) \
       $out/bin/tor-browser --version >/dev/null
   '';
+
+  passthru.updateScript = import ./update.nix {
+    inherit (stdenv) lib;
+    inherit writeScript common-updater-scripts;
+    inherit bash coreutils gnugrep gnused curl gnupg;
+  };
 
   meta = with stdenv.lib; {
     description = "Tor Browser Bundle";
