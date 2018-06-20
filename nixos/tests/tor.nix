@@ -14,11 +14,15 @@ rec {
   nodes.client =
     { config, pkgs, ... }:
     { imports = [ common ];
+      environment.systemPackages = with pkgs; [ netcat ];
       services.tor.enable = true;
       services.tor.client.enable = true;
+      services.tor.controlPort = 9051;
     };
 
   testScript = ''
     $client->waitForUnit("tor.service");
+    $client->waitForOpenPort(9051);
+    $client->succeed("echo GETINFO version | nc 127.0.0.1 9051") =~ /514 Authentication required./ or die;
   '';
 })
