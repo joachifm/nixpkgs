@@ -9,6 +9,9 @@ rec {
     { boot.kernelParams = [ "audit=0" "apparmor=0" "quiet" ];
       networking.firewall.enable = false;
       networking.useDHCP = false;
+      services.tor.extraConfig = ''
+        TestingTorNetwork 1
+      '';
     };
 
   nodes.client =
