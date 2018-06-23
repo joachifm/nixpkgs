@@ -8,3 +8,12 @@ echo password | tor-gencert --passphrase-fd 0 --create-identity-key \
     -a 0.0.0.0:443
 awk '/fingerprint/ { print $2 }' auth1/keys/authority_certificate > auth1/fingerprint
 echo -n password | tor --quiet --keygen --DataDirectory $PWD/auth1 --passphrase-fd 0
+
+mkdir -p auth2/keys
+echo password | tor-gencert --passphrase-fd 0 --create-identity-key \
+    -i auth2/keys/authority_identity_key \
+    -s auth2/keys/authority_signing_key \
+    -c auth2/keys/authority_certificate \
+    -a 0.0.0.0:443
+awk '/fingerprint/ { print $2 }' auth2/keys/authority_certificate > auth2/fingerprint
+echo -n password | tor --quiet --keygen --DataDirectory $PWD/auth2 --passphrase-fd 0
