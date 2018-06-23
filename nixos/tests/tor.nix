@@ -17,6 +17,7 @@ rec {
       environment.systemPackages = with pkgs; [ netcat ];
       services.tor.enable = true;
       services.tor.client.enable = true;
+      services.tor.client.privoxy.enable = false;
       services.tor.controlPort = 9051;
     };
 
