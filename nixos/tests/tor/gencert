@@ -1,19 +1,20 @@
 #! /bin/sh
 
+# Create keys for authority router.  v3fingerprint & fingerprint_plain
+# are primarily for readFile within Nix.
+
 mkdir -p auth1/keys
 echo password | tor-gencert --passphrase-fd 0 --create-identity-key \
     -i auth1/keys/authority_identity_key \
     -s auth1/keys/authority_signing_key \
     -c auth1/keys/authority_certificate \
-    -a 0.0.0.0:443
-awk '/fingerprint/ { print $2 }' auth1/keys/authority_certificate > auth1/fingerprint
+    -a 192.168.0.1:8080
 echo -n password | tor --quiet --keygen --DataDirectory $PWD/auth1 --passphrase-fd 0
-
-mkdir -p auth2/keys
-echo password | tor-gencert --passphrase-fd 0 --create-identity-key \
-    -i auth2/keys/authority_identity_key \
-    -s auth2/keys/authority_signing_key \
-    -c auth2/keys/authority_certificate \
-    -a 0.0.0.0:443
-awk '/fingerprint/ { print $2 }' auth2/keys/authority_certificate > auth2/fingerprint
-echo -n password | tor --quiet --keygen --DataDirectory $PWD/auth2 --passphrase-fd 0
+tor --quiet --list-fingerprint \
+    --Nickname auth1 \
+    --ORPort 1 \
+    --DirServer "x 127.0.0.1:1 ffffffffffffffffffffffffffffffffffffffff" \
+    --DataDirectory $PWD/auth1
+awk '/fingerprint/ { print $2 }' auth1/keys/authority_certificate > auth1/v3fingerprint
+cut -d ' ' -f 2 auth1/fingerprint > auth1/fingerprint_plain
+rm -f auth1/lock
