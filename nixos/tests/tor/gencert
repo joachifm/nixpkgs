@@ -1,0 +1,10 @@
+#! /bin/sh
+
+mkdir -p auth1/keys
+echo password | tor-gencert --passphrase-fd 0 --create-identity-key \
+    -i auth1/keys/authority_identity_key \
+    -s auth1/keys/authority_signing_key \
+    -c auth1/keys/authority_certificate \
+    -a 0.0.0.0:443
+awk '/fingerprint/ { print $2 }' auth1/keys/authority_certificate > auth1/fingerprint
+echo -n password | tor --quiet --keygen --DataDirectory $PWD/auth1 --passphrase-fd 0
