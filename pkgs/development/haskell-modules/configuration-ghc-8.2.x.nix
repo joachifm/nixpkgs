@@ -107,4 +107,7 @@ self: super: {
     sha256 = "1kvy92hr8n16p9690hwjr9bnddhln1xkrixyb6w7jm5qc1rc9rxf";
   });
 
+  # Unable to satisfy constraint contravariant >=1.4.1 && <1.6
+  aeson = addBuildDepend super.aeson self.contravariant;
+
 }
