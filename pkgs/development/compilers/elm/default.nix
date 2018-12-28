@@ -55,7 +55,7 @@ let
   hsPkgs = haskell.packages.ghc822.override {
     overrides = self: super: with haskell.lib;
       let elmPkgs = {
-            elm = overrideCabal (self.callPackage ./packages/elm.nix { }) (drv: {
+            elm = doJailbreak (overrideCabal (self.callPackage ./packages/elm.nix { }) (drv: {
               # sadly with parallelism most of the time breaks compilation
               enableParallelBuilding = false;
               preConfigure = fetchElmDeps {
@@ -73,7 +73,7 @@ let
                 wrapProgram $out/bin/elm \
                   --prefix PATH ':' ${lib.makeBinPath [ nodejs ]}
               '';
-            });
+            }));
 
 
 
