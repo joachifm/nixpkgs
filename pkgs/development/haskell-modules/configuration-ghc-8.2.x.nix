@@ -99,4 +99,12 @@ self: super: {
   # GHC 8.2 doesn't have semigroups included by default
   ListLike = addBuildDepend super.ListLike self.semigroups;
 
+  # Fixes the test suite
+  #
+  # https://github.com/GaloisInc/cereal/issues/81
+  cereal = appendPatch super.cereal (pkgs.fetchpatch {
+    url = "https://github.com/GaloisInc/cereal/commit/00ea19fc1221e3859a18b4efcf106ac2f6247ef1.patch";
+    sha256 = "1kvy92hr8n16p9690hwjr9bnddhln1xkrixyb6w7jm5qc1rc9rxf";
+  });
+
 }
