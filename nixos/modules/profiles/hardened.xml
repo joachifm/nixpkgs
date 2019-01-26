@@ -1,0 +1,101 @@
+<chapter xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         version="5.0"
+         xml:id="sec-hardened-profile">
+ <title>Hardened profile</title>
+ <!--
+ <para>
+   The hardened profile enables all vanilla hardening options by default,
+   potentially at the cost of features and performance.
+ </para>
+ <sect1 xml:id="sec-hardened-profile-configuration">
+  <title>Basic configuration</title>
+
+  <para>
+    The hardened profile is enabled by adding it to the module
+    import list, as in
+    <programlisting>
+      { config, ... }:
+      { imports = [
+          <nixos>/modules/profile/hardened.nix
+        ];
+      }
+    </programlisting>
+  </para>
+
+  <para>
+    The hardened profile exists primarily to change the defaults of options
+    declared in other modules.  The hardened defaults follow a deny-by-default
+    approach to hardening, with only minimal care for compatibility or
+    performance.  The user is assumed to relax these defaults where necessary, to
+    best fit their deployment.  Failing to provide relaxed overrides is likely to
+    break features and cripple performance.
+  </para>
+
+ </sect1>
+
+ <sect1 xml:id="sec-hardened-profile-security">
+  <title>Hardened profile security</title>
+
+  <para>
+    The name "hardened" suggests improved security, but it is important to
+    realize that simply including the hardened profile is not guaranteed to
+    materially improve the security of the system.  For one, mitigations enabled
+    by the profile may be speculative or yet to be proven effective.  Secondly,
+    the mitigations themselves may have (exploitable) bugs or trigger problematic
+    codepaths in other parts of the system.  It is up to the administrator to
+    judge whether a given hardening feature provides a reasonable security/usability
+    tradeoff.
+  </para>
+
+</sect1>
+
+<sect1 xml:id="sec-hardened-profile-features">
+  <title>Mitigations enabled by the hardened profile</title>
+
+  <itemizedlist>
+    <listitem>Kernel module locking</listitem>
+    <listitem>Process information hiding</listitem>
+    <listitem>Page poisoning</listitem>
+    <listitem>Disables exotic network protocols</listitem>
+    <listitem>Makes it harder to replace the running kernel image</listitem>
+    <listitem>dmesg(8) restriction</listitem>
+    <listitem>Disables user namespaces</listitem>
+    <listitem>Various virtual memory hardening</listitem>
+  </itemizedlist>
+
+</sect1>
+
+<sect1 xml:id="sec-hardened-profile-known-incompatibilities">
+  <title>Known incompatibilities</title>
+
+  <para>
+    Below is a (non-exhaustive) list of features/options known to be incompatible
+    with the hardened defaults.
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+        <option>nix.useSandbox</option> relies on user namespaces,
+        which are disabled by the hardened profile.  To relax this
+        restriction, set <option>boot.sysctl."user.max_user_namespaces"</option>
+        to a suffiently high number.  Beware, however, that user namespaces
+        have been implicated in privilege escalation bugs.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+        Hibernation.  There is no easy work-around for this.
+      </para>
+    </listitem>
+
+  </itemizedlist>
+
+</sect1>
+
+-->
+
+</chapter>
