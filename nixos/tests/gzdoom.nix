@@ -18,7 +18,7 @@ rec {
     { pkgs, ... }:
 
     { imports = [ ./common/x11.nix ];
-      environment.systemPackages = [ pkgs.gzdoom ];
+      environment.systemPackages = [ pkgs.gzdoom pkgs.xdotool ];
       networking.dhcpcd.enable = false;
       hardware.opengl.driSupport = true;
     };
@@ -26,9 +26,10 @@ rec {
   testScript =
     ''
       $machine->waitForX;
-      $machine->execute("gzdoom +logfile gzdoom.txt -nosound -iwad ${freedoom}/freedoom1.wad -warp 1 &");
-      $machine->sleep(20);
+      $machine->execute("gzdoom -nosound -width 640 -height 480 +set fullscreen false &");
+      $machine->waitUntilSucceeds("pgrep -c gzdoom");
+      $machine->succeed("xdotool search --onlyvisible --class gzdoom windowfocus --sync windowactivate --sync");
+      $machine->sleep(10);
       $machine->screenshot("screen");
     '';
-
 })
