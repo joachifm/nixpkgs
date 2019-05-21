@@ -7283,6 +7283,12 @@ in
   openjdk = openjdk8;
 
   jdk8 = if stdenv.isAarch32 || stdenv.isAarch64 then oraclejdk8 else openjdk8 // { outputs = [ "out" ]; };
+  jdk8_headless =
+    if stdenv.isDarwin then
+      jdk8
+    else
+      lib.setName "openjdk-${lib.getVersion pkgs.openjdk8}-headless"
+        (openjdk8.override { minimal = true; });
   jre8 = if stdenv.isAarch32 || stdenv.isAarch64 then oraclejre8 else lib.setName "openjre-${lib.getVersion pkgs.openjdk8.jre}"
     (lib.addMetaAttrs { outputsToInstall = [ "jre" ]; }
       (openjdk8.jre // { outputs = [ "jre" ]; }));
@@ -7308,6 +7314,7 @@ in
   jdk = jdk8;
   jre = if stdenv.isAarch32 || stdenv.isAarch64 then adoptopenjdk-jre-bin else jre8;
   jre_headless = jre8_headless;
+  jdk_headless = jdk8_headless;
 
   inherit (callPackages ../development/compilers/graalvm { }) mx jvmci8 graalvm8;
 
