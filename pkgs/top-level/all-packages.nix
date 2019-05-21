@@ -8998,7 +8998,9 @@ in
   massif-visualizer = libsForQt5.callPackage ../development/tools/analysis/massif-visualizer { };
 
   maven = maven3;
-  maven3 = callPackage ../development/tools/build-managers/apache-maven { };
+  maven3 = callPackage ../development/tools/build-managers/apache-maven {
+    jdk = jdk_headless;
+  };
 
   go-md2man = callPackage ../development/tools/misc/md2man {};
 
