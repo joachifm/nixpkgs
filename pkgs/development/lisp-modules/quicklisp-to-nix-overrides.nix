@@ -77,7 +77,7 @@ $out/lib/common-lisp/query-fs"
     };
   };
   cffi = addNativeLibs [pkgs.libffi];
-  cl-mysql = addNativeLibs [pkgs.mysql];
+  cl-mysql = addNativeLibs [pkgs.mysql-client];
   cl-ppcre-template = x: {
     overrides = y: (x.overrides y) // {
       postPatch = ''
